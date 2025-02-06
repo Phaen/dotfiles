@@ -9,10 +9,9 @@ source_optional "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.
 
 export ZSH="$HOME/.oh-my-zsh"
 
-zstyle ':omz:update' mode auto
+zstyle ':omz:update' mode disabled
 
 DISABLE_UNTRACKED_FILES_DIRTY="true"
-DISABLE_AUTO_UPDATE="true"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 HYPHEN_INSENSITIVE="true"
 
