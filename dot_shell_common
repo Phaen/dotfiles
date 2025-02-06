@@ -1,0 +1,11 @@
+#!/bin/bash
+
+source_optional() {
+  # shellcheck source=/dev/null
+  [[ -f "$1" ]] && source $1
+}
+source_local() {
+  source_optional "$HOME/.${1}.local"
+}
+
+source_local shell_common
