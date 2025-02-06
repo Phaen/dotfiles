@@ -8,11 +8,16 @@ source_optional "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.
 #############
 
 export ZSH="$HOME/.oh-my-zsh"
+
+zstyle ':omz:update' mode auto
+
+DISABLE_UNTRACKED_FILES_DIRTY="true"
+DISABLE_AUTO_UPDATE="true"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 HYPHEN_INSENSITIVE="true"
-zstyle ':omz:update' mode auto
-DISABLE_UNTRACKED_FILES_DIRTY="true"
+
 plugins=(aliases composer dirhistory docker docker-compose git thefuck vi-mode kitty fuzzy-docker laravel-sail)
+
 source $ZSH/oh-my-zsh.sh
 source_optional ~/.p10k.zsh
 
