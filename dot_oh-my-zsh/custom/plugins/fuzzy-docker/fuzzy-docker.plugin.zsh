@@ -3,7 +3,7 @@ function fdcontainer() {
 }
 
 function fdex() {
-  docker exec -it $(fdcontainer) "${@:-bash}"
+  docker exec -it $(fdcontainer) "${@:-sh}"
 }
 
 function fdlog() {
