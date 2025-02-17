@@ -22,3 +22,8 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply Phaen
 ```bash
 sh -c "$(curl -fsLS get.chezmoi.io)" -- init --one-shot Phaen
 ```
+## Details
+
+### TheFuck
+The oh-my-zsh config contains aliases for thefuck. If you don't have it installed and want to do so through a local pip, make sure you install setuptools too.
+`pip install setuptools thefuck`
