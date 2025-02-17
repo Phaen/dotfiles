@@ -6,6 +6,6 @@ function fdex() {
   docker exec -it $(fdcontainer) "${@:-bash}"
 }
 
-function fdex() {
+function fdlog() {
   docker logs -f $(fdcontainer)
 }
