@@ -1,13 +1,29 @@
 #!/bin/bash
 
+####################
+# Custom functions #
+####################
+
+# Fuzzy select a dir to CD into
+function cdf() {
+  cd "$(find . -type d -mindepth 1 -maxdepth 1 | xargs -I{} basename {} | fzf --query="${1:-}" --preview="ls -A {}" --select-1 --height 20)"
+}
+
+# Optionally source a file if it exists
 source_optional() {
   # shellcheck source=/dev/null
   if [ -f "$1" ]; then
     source "$1"
   fi
 }
+
+# Source local version of a file
 source_local() {
   source_optional "$HOME/.${1}.local"
 }
+
+#############################
+# Source local declarations #
+#############################
 
 source_local shell_common
