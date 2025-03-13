@@ -1,5 +1,5 @@
 function fdcontainer() {
-  docker ps | grep -v CONTAINER | awk '-F ' ' {print $NF}' | fzf
+  docker ps | grep -v CONTAINER | awk '-F ' ' {print $NF}' | fzf --select-1 --height 20
 }
 
 function fdex() {
