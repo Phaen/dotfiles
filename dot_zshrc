@@ -15,7 +15,11 @@ DISABLE_UNTRACKED_FILES_DIRTY="true"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 HYPHEN_INSENSITIVE="true"
 
-plugins=(aliases composer dirhistory docker docker-compose git thefuck vi-mode kitty fuzzy-docker laravel-sail)
+plugins=(aliases composer dirhistory docker docker-compose git vi-mode kitty fuzzy-docker laravel-sail)
+
+if command -v thefuck &> /dev/null; then
+    plugins+=(thefuck)
+fi
 
 source $ZSH/oh-my-zsh.sh
 source_optional ~/.p10k.zsh
