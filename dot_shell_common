@@ -69,7 +69,7 @@ provision_node() {
 
 provision_python() {
   command_exists mise || provision_mise
-  mise use --global node
+  mise use --global python
 }
 
 # {{{ Provision Zig
@@ -127,6 +127,7 @@ provision_all() {
   provision_mise
   provision_node
   provision_python
+  provision_zig
 }
 
 #############################
