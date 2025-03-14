@@ -1,0 +1,11 @@
+source ~/.shell_common
+
+##########
+# CUSTOM #
+##########
+
+if command -v mise &>/dev/null; then
+  eval "$(~/.local/bin/mise activate bash)"
+fi
+
+source_local bashrc
