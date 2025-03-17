@@ -1,9 +1,11 @@
 function fdcontainer() {
-  docker ps | grep -v CONTAINER | awk '-F ' ' {print $NF}' | fzf --select-1 --height 20
+  docker ps | grep -v CONTAINER | awk '-F ' ' {print $NF}' | fzf --query="${1:-}" --select-1 --height 20
 }
 
 function fdex() {
-  docker exec -it $(fdcontainer) "${@:-sh}"
+  local container=$(fdcontainer $1)
+  shift
+  docker exec -it "$container" "${@:-sh}"
 }
 
 function fdlog() {
