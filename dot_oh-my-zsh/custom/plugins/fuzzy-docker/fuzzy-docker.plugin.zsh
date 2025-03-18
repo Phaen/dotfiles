@@ -9,5 +9,5 @@ function fdex() {
 }
 
 function fdlog() {
-  docker logs -f $(fdcontainer)
+  docker logs -f $(fdcontainer $1)
 }
