@@ -25,3 +25,8 @@ type = "archive"
 url = "https://github.com/romkatv/powerlevel10k/archive/refs/tags/v1.20.0.tar.gz"
 exact = true
 stripComponents = 1
+
+[".bash-it"]
+type = "git-repo"
+url = "https://github.com/Bash-it/bash-it.git"
+refreshPeriod = "168h"

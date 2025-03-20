@@ -1,8 +1,32 @@
-source ~/.shell_common
+###########
+# Bash-it #
+###########
+
+# Suppress messages about default shell
+export BASH_SILENCE_DEPRECATION_WARNING=1
+
+# Path to the bash it configuration
+export BASH_IT="$HOME/.bash-it"
+
+# Lock and Load a custom theme file.
+# Leave empty to disable theming.
+# location "$BASH_IT"/themes/
+export BASH_IT_THEME='powerline-multiline'
+
+# Don't check mail when opening terminal.
+unset MAILCHECK
+
+# Version control status checking within the prompt
+export SCM_CHECK=true
+
+# Load Bash It
+source "$BASH_IT"/bash_it.sh
 
 ##########
 # CUSTOM #
 ##########
+
+source ~/.shell_common
 
 if command -v mise &>/dev/null; then
   eval "$(~/.local/bin/mise activate bash)"
