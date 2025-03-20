@@ -3,9 +3,23 @@ function fdcontainer() {
 }
 
 function fdex() {
+  local opts=()
+  while [[ "$1" == --* ]]; do
+    case "$1" in
+      --root)
+        opts+=("-u" "0")
+        ;;
+      *)
+        echo "Error: Invalid option: $1" >&2
+        exit 1
+        ;;
+    esac
+    shift
+  done
+
   local container=$(fdcontainer $1)
   shift
-  docker exec -it "$container" "${@:-sh}"
+  docker exec $opts -it "$container" "${@:-sh}"
 }
 
 function fdlog() {
