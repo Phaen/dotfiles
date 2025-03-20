@@ -1,0 +1,35 @@
+####################
+# Helper functions #
+####################
+
+# Check if a command exists
+command_exists() {
+  if command -v "$1" &>/dev/null; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# Optionally source a file if it exists
+source_optional() {
+  # shellcheck source=/dev/null
+  if [ -f "$1" ]; then
+    source "$1"
+  fi
+}
+
+# Source local version of a file
+source_local() {
+  source_optional "$HOME/.${1}.local"
+}
+
+########################
+# Source other scripts #
+########################
+
+for file in "$HOME"/.custom.d/*; do
+  source "$file"
+done
+
+source_local custom
