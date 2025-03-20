@@ -26,9 +26,10 @@ source "$BASH_IT"/bash_it.sh
 # CUSTOM #
 ##########
 
-source ~/.shell_common
+source .custom
 
-if command -v mise &>/dev/null; then
+# Activate mise environment
+if command_exists mise; then
   eval "$(~/.local/bin/mise activate bash)"
 fi
 

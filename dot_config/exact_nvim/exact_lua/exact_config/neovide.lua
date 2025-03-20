@@ -12,7 +12,7 @@ if vim.g.neovide then
   vim.g.neovide_transparency = 1
   vim.g.neovide_cursor_animate_in_insert_mode = true
   vim.g.neovide_cursor_vfx_mode = "wireframe" -- Available: railgun, torpedo, pixiedust, sonicboom, ripple, wireframe
-  vim.g.neovide_hide_mouse_when_typing = true
+  vim.g.neovide_hide_mouse_when_typing = false
 
   -- Zoom in and out with <c-+> and <c-->
 

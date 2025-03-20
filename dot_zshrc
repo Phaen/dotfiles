@@ -1,7 +1,9 @@
-source ~/.shell_common
-
 # Powerlevel10k instant prompt
-source_optional "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+source .custom
 
 #############
 # Oh My Zsh #
@@ -15,21 +17,27 @@ DISABLE_UNTRACKED_FILES_DIRTY="true"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 HYPHEN_INSENSITIVE="true"
 
-plugins=(aliases composer dirhistory docker docker-compose git vi-mode kitty fuzzy-docker laravel-sail)
+plugins=(aliases composer dirhistory docker docker-compose git vi-mode kitty fuzzy-docker laravel-sail chezmoi)
 
-if command -v thefuck &> /dev/null; then
+if command_exists thefuck; then
     plugins+=(thefuck)
 fi
 
-source $ZSH/oh-my-zsh.sh
+if command_exists terminal-notifier; then
+    plugins+=(bgnotify)
+fi
+
+source $HOME/.oh-my-zsh/oh-my-zsh.sh
 source_optional ~/.p10k.zsh
 
 ##########
 # CUSTOM #
 ##########
 
-if command -v mise &> /dev/null; then
-    eval "$(~/.local/bin/mise activate zsh)"
+
+# Activate mise environment
+if command_exists mise; then
+  eval "$(~/.local/bin/mise activate zsh)"
 fi
 
 source_local zshrc
