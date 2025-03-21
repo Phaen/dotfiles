@@ -6,13 +6,28 @@
 
 # Fuzzy find the container
 function docker_container_fuzzy() {
-  docker ps | grep -v CONTAINER | awk '-F ' ' {print $NF}' | fzf --query="${1:-}" --select-1 --height 20
+  local container
+  container=$(docker ps | grep -v CONTAINER | awk '-F ' ' {print $NF}' | fzf --query="${1:-}" --select-1 --height 20)
+
+  if [ -z "$container" ]; then
+    return 1
+  fi
+
+  echo "$container"
 }
 
 # Find the container with the current project mounted
 function docker_container_project() {
+  local dir container
   dir=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
-  docker ps -q | xargs docker inspect | jq -r '.[] | select(.Mounts[] | .Source == "'"$dir"'") | .Name'
+  container=$(docker ps -q | xargs docker inspect | jq -r '.[] | select(.Mounts[] | .Source == "'"$dir"'") | .Name')
+
+  if [ -z "$container" ]; then
+    echo "Error: No container found for $dir" >&2
+    return 1
+  fi
+
+  echo "$container"
 }
 
 ##################
@@ -28,7 +43,7 @@ function docker_function_exec() {
       ;;
     *)
       echo "Error: Invalid option: $1" >&2
-      exit 1
+      return 1
       ;;
     esac
     shift
@@ -47,19 +62,32 @@ function docker_function_log() {
 # Composites #
 ##############
 
-function fdex() {
+function docker_construct_helper() {
+  local base="$1"
+  local provider="$2"
+  local params="$3"
+  shift 3
+
+  if [ $# -lt "$params" ]; then
+    echo "Error: missing container selection arguments" >&2
+    return 1
+  fi
+
   local container
-  container=$(docker_container_fuzzy "$1")
-  shift
-  docker_function_exec "$container" "$@"
+  container="$($provider "${@:1:$params}")"
+  shift "$params"
+
+  if [ -z "$container" ]; then
+    return 1
+  fi
+
+  $base "$container" "$@"
 }
 
-function flog() {
-  docker_function_log "$(docker_container_fuzzy "$1")"
-}
-
-alias pdex='docker_function_exec $(docker_container_project)'
-alias plog='docker_function_log $(docker_container_project)'
+alias pdex='docker_construct_helper "docker_function_exec" "docker_container_project" 0'
+alias pdlog='docker_construct_helper "docker_function_log" "docker_container_project" 0'
+alias fdex='docker_construct_helper "docker_function_exec" "docker_container_fuzzy" 1'
+alias fdlog='docker_construct_helper "docker_function_log" "docker_container_fuzzy" 1'
 
 ###########
 # Helpers #
@@ -68,3 +96,6 @@ alias plog='docker_function_log $(docker_container_project)'
 # Laravel
 
 alias da='pdex php artisan'
+
+# PHP
+alias dstan='pdex php vendor/bin/phpstan'
