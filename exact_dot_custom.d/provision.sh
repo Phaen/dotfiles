@@ -1,3 +1,5 @@
+#!/bin/bash
+
 provision_mise() {
   curl https://mise.run | sh
 }

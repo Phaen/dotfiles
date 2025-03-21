@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #######################
 # Container Providers #
 #######################
@@ -10,7 +12,7 @@ function docker_container_fuzzy() {
 # Find the container with the current project mounted
 function docker_container_project() {
   dir=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
-  docker ps -q | xargs docker inspect | jq -r '.[] | select(.Mounts[] | .Source == "'$dir'") | .Name'
+  docker ps -q | xargs docker inspect | jq -r '.[] | select(.Mounts[] | .Source == "'"$dir"'") | .Name'
 }
 
 ##################
@@ -34,7 +36,7 @@ function docker_function_exec() {
 
   local container=$1
   shift
-  docker exec $opts -it "$container" "${@:-sh}"
+  docker exec "${opts[@]}" -it "$container" "${@:-sh}"
 }
 
 function docker_function_log() {
@@ -46,7 +48,8 @@ function docker_function_log() {
 ##############
 
 function fdex() {
-  local container=$(docker_container_fuzzy "$1")
+  local container
+  container=$(docker_container_fuzzy "$1")
   shift
   docker_function_exec "$container" "$@"
 }
@@ -57,3 +60,11 @@ function flog() {
 
 alias pdex='docker_function_exec $(docker_container_project)'
 alias plog='docker_function_log $(docker_container_project)'
+
+###########
+# Helpers #
+###########
+
+# Laravel
+
+alias da='pdex php artisan'

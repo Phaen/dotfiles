@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Add missing local bin paths to PATH
 BIN_PATHS=(
   "$HOME/.local/bin"

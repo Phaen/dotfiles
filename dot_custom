@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ####################
 # Helper functions #
 ####################
@@ -13,8 +15,8 @@ command_exists() {
 
 # Optionally source a file if it exists
 source_optional() {
-  # shellcheck source=/dev/null
   if [ -f "$1" ]; then
+    # shellcheck source=/dev/null
     source "$1"
   fi
 }
@@ -29,6 +31,7 @@ source_local() {
 ########################
 
 for file in "$HOME"/.custom.d/*; do
+  # shellcheck source=/dev/null
   source "$file"
 done
 
