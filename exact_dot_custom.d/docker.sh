@@ -35,6 +35,10 @@ function docker_container_project() {
 ##################
 
 function docker_function_exec() {
+
+  local container=$1
+  shift
+
   local opts=()
   while [[ "$1" == --* ]]; do
     case "$1" in
@@ -48,9 +52,6 @@ function docker_function_exec() {
     esac
     shift
   done
-
-  local container=$1
-  shift
   docker exec "${opts[@]}" -it "$container" "${@:-sh}"
 }
 
