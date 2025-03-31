@@ -94,8 +94,11 @@ alias fdlog='docker_construct_helper "docker_function_log" "docker_container_fuz
 # Helpers #
 ###########
 
-# Laravel
+# Shortcuts
+alias dex='pdex'
+alias dlog='pdlog'
 
+# Laravel
 alias da='pdex php artisan'
 
 # PHP
