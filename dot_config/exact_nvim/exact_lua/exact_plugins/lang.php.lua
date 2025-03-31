@@ -56,7 +56,7 @@ return {
                   -- Allow stubs to be autodiscovered
                   "~/.composer/vendor/php-stubs",
                   "vendor/php-stubs",
-                  "_ide_helper.php",
+                  "_ide_helper*",
                 },
               },
               files = {
