@@ -37,7 +37,7 @@ source_optional ~/.p10k.zsh
 
 # Activate mise environment
 if command_exists mise; then
-  eval "$(~/.local/bin/mise activate zsh)"
+  eval "$(mise activate zsh)"
 fi
 
 source_local zshrc

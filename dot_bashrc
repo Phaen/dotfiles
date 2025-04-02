@@ -30,7 +30,7 @@ source .custom
 
 # Activate mise environment
 if command_exists mise; then
-  eval "$(~/.local/bin/mise activate bash)"
+  eval "$(mise activate bash)"
 fi
 
 source_local bashrc

@@ -18,8 +18,3 @@ for bin_path in "${BIN_PATHS[@]}"; do
     export PATH="$bin_path:$PATH"
   fi
 done
-
-# Activate mise environment
-if command_exists mise; then
-  eval "$(~/.local/bin/mise activate zsh)"
-fi
