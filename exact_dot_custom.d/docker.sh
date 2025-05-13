@@ -6,11 +6,30 @@
 
 # Fuzzy find the container
 function docker_container_fuzzy() {
-  local container
-  container=$(docker ps | grep -v CONTAINER | awk '-F ' ' {print $NF}' | fzf --query="${1:-}" --select-1 --height 20)
+  local container cache_file="/tmp/docker_container_fuzzy_cache"
+  local query="${1:-}"
+  local cached_container=""
 
+  # Check if cache exists and container is still running
+  if [ -f "$cache_file" ] && [ -n "$query" ]; then
+    cached_container=$(grep "^$query:" "$cache_file" | cut -d':' -f2)
+    if [ -n "$cached_container" ] && docker ps -q --filter "name=$cached_container" | grep -q .; then
+      echo "$cached_container"
+      return 0
+    fi
+  fi
+
+  # No valid cache, perform fuzzy search
+  container=$(docker ps | grep -v CONTAINER | awk '{print $NF}' | fzf --query="$query" --select-1 --height 20)
   if [ -z "$container" ]; then
     return 1
+  fi
+
+  # Save to cache if query was provided
+  if [ -n "$query" ]; then
+    grep -v "^$query:" "$cache_file" 2>/dev/null >"${cache_file}.tmp" || touch "${cache_file}.tmp"
+    echo "$query:$container" >>"${cache_file}.tmp"
+    mv "${cache_file}.tmp" "$cache_file"
   fi
 
   echo "$container"
@@ -95,11 +114,11 @@ alias fdlog='docker_construct_helper "docker_function_log" "docker_container_fuz
 ###########
 
 # Shortcuts
-alias dex='pdex'
+alias d='pdex'
 alias dlog='pdlog'
 
 # Laravel
-alias da='pdex php artisan'
+alias da='d php artisan'
 
 # PHP
 alias dstan='pdex php vendor/bin/phpstan'

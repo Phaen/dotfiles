@@ -4,3 +4,5 @@
 function cdf() {
   cd "$(find . -type d -mindepth 1 -maxdepth 1 | xargs -I{} basename {} | fzf --query="${1:-}" --preview="ls -A {}" --select-1 --height 20)"
 }
+
+alias venv="source venv/bin/activate"
