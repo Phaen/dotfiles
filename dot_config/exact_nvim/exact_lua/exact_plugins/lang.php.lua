@@ -56,7 +56,7 @@ return {
                   -- Allow stubs to be autodiscovered
                   "~/.composer/vendor/php-stubs",
                   "vendor/php-stubs",
-                  "_ide_helper*",
+                  "_ide_helper.php",
                 },
               },
               files = {
@@ -120,6 +120,7 @@ return {
   -- Configure linters, conditionally add them depending on which are installed in the project
   {
     "mfussenegger/nvim-lint",
+    event = { "BufReadPre", "BufNewFile" },
     opts = function(_, opts)
       local linters = { "phpstan", "phpcs" }
 
