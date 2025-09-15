@@ -121,4 +121,4 @@ alias dlog='pdlog'
 alias da='d php artisan'
 
 # PHP
-alias dstan='pdex php vendor/bin/phpstan'
+alias dstan='pdex php vendor/bin/phpstan --memory-limit=2G'
