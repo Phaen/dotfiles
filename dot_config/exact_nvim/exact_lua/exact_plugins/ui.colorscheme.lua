@@ -3,9 +3,7 @@ return {
   -- catppuccin theme
   {
     "catppuccin/nvim",
-    version = "v1.11.0", -- the master branch changed 'get()' function,
     name = "catppuccin",
-    -- lazy = true,
     priority = 1000,
     opts = {
       flavour = "mocha",

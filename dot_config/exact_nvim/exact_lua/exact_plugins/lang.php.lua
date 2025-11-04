@@ -33,7 +33,7 @@ return {
 
   -- Add Mason packages
   {
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
     opts = {
       ensure_installed = {
         -- no pint, phpcs, phpcbf: so we only use it if its installed in the project
