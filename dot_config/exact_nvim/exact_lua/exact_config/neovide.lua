@@ -9,7 +9,7 @@ if vim.g.neovide then
   vim.g.neovide_fullscreen = false
   vim.g.neovide_profiler = false
 
-  vim.g.neovide_transparency = 1
+  vim.g.neovide_opacity = 1
   vim.g.neovide_cursor_animate_in_insert_mode = true
   vim.g.neovide_cursor_vfx_mode = "wireframe" -- Available: railgun, torpedo, pixiedust, sonicboom, ripple, wireframe
   vim.g.neovide_hide_mouse_when_typing = false
@@ -34,10 +34,10 @@ if vim.g.neovide then
   end)
 
   local function toggle_transparency()
-    if vim.g.neovide_transparency == 1.0 then
-      vim.cmd("let g:neovide_transparency=0.8")
+    if vim.g.neovide_opacity == 1.0 then
+      vim.cmd("let g:neovide_opacity=0.8")
     else
-      vim.cmd("let g:neovide_transparency=1.0")
+      vim.cmd("let g:neovide_opacity=1.0")
     end
   end
   vim.keymap.set("n", "<leader>uv", toggle_transparency, { desc = "Toggle neovide transparency" })

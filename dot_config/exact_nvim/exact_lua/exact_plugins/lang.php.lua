@@ -23,7 +23,7 @@ local function get_docker_target()
   return "/var/www/html" -- hail mary
 end
 
----@type LazyPluginSpec
+---@type LazyPluginSpec[]
 return {
   -- Add treesitter syntax
   {
