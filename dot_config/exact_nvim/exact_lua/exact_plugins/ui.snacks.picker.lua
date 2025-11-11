@@ -4,7 +4,7 @@ return {
     picker = {
       sources = {
         explorer = {
-          include = { ".env*" },
+          include = { ".env*", ".gitignore" },
         },
       },
     },
