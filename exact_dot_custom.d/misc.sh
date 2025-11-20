@@ -6,3 +6,7 @@ function cdf() {
 }
 
 alias venv="source venv/bin/activate"
+
+persistent() {
+    while true; do "$@"; echo "--- Exited ($?), reconnecting in 1s ---"; sleep 1; done
+}
