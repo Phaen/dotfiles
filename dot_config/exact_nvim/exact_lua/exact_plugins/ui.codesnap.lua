@@ -10,6 +10,7 @@ return {
     has_line_number = true,
     bg_padding = 0,
     mac_window_bar = false,
+    show_workspace = true,
   },
   keys = {
     { "<leader>cp", "<cmd>CodeSnap<cr>", mode = "x", desc = "Snap selected code to clipboard" },
