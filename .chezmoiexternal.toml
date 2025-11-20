@@ -30,3 +30,8 @@ stripComponents = 1
 type = "git-repo"
 url = "https://github.com/Bash-it/bash-it.git"
 refreshPeriod = "168h"
+
+[".config/tmux/tmux.conf"]
+type = "file"
+url = "https://raw.githubusercontent.com/gpakosz/.tmux/master/.tmux.conf"
+refreshPeriod = "168h"
