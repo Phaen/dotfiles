@@ -2,12 +2,6 @@
 -- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
 -- Add any additional options here
 
--- Remove eyestrain
-vim.api.nvim_set_hl(0, "DiffDelete", {
-  bg = vim.api.nvim_get_hl(0, { name = "CursorColumn" }).bg,
-  fg = vim.api.nvim_get_hl(0, { name = "Cursor" }).fg,
-})
-
 -- Enable dynamic window titles (otherwise just shows app name)
 vim.opt.title = true
 
