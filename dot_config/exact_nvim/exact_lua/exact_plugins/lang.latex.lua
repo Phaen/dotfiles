@@ -65,6 +65,16 @@ return {
     },
   },
 
+  -- which-key group name
+  {
+    "folke/which-key.nvim",
+    opts = {
+      spec = {
+        { "<localleader>l", group = "latex", mode = { "n", "x" } },
+      },
+    },
+  },
+
   -- Disable treesitter syntax highlighting for latex
   {
     "nvim-treesitter/nvim-treesitter",
