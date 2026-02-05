@@ -1,0 +1,3 @@
+# Ignore Claude Code project folders
+**/.claude
+**/.claude/**
