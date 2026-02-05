@@ -2,7 +2,13 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:deepwiki.com)",
+      "WebFetch(domain:lazyvim.github.io)",
+      "WebFetch(domain:www.lazyvim.org)",
+      "WebFetch(domain:gpanders.com)",
+      "WebFetch(domain:neovim.io)",
+      "Bash(nvim:*)"
     ],
     "deny": [],
     "ask": []
