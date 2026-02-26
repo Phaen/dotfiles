@@ -1,3 +1,40 @@
-# Ignore Claude Code project folders
-**/.claude
-**/.claude/**
+# Ignore Claude Code project folders (but not ~/.claude itself)
+.claude/.credentials.json
+.claude/cache
+.claude/cache/**
+.claude/chrome
+.claude/chrome/**
+.claude/debug
+.claude/debug/**
+.claude/file-history
+.claude/file-history/**
+.claude/history.jsonl
+.claude/ide
+.claude/ide/**
+.claude/paste-cache
+.claude/paste-cache/**
+.claude/plans
+.claude/plans/**
+.claude/plugins
+.claude/plugins/**
+.claude/projects
+.claude/projects/**
+.claude/session-env
+.claude/session-env/**
+.claude/shell-snapshots
+.claude/shell-snapshots/**
+.claude/stats-cache.json
+.claude/statsig
+.claude/statsig/**
+.claude/tasks
+.claude/tasks/**
+.claude/telemetry
+.claude/telemetry/**
+.claude/todos
+.claude/todos/**
+
+# Ignore .claude inside other directories (project-level)
+*/.claude
+*/.claude/**
+**/*/.claude
+**/*/.claude/**
