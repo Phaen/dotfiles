@@ -20,7 +20,7 @@ jq -n \
 $CONTEXT
 
 ---
-This handoff was written by the previous session. The file is at .claude/session-handoff.md. Delete it when the task is complete." \
+This handoff was written by the previous session." \
   '{
     "hookSpecificOutput": {
       "hookEventName": "SessionStart",
