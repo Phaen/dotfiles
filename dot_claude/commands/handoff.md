@@ -24,4 +24,4 @@ Write the summary as a clear, scannable markdown file. No rigid template - struc
 
 ## Context
 
-The handoff file is automatically injected into the next session via a SessionStart hook when the user runs `/clear`.
+The handoff file is automatically picked up by the next session via a SessionStart hook.
