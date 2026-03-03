@@ -22,6 +22,12 @@ Be specific: use actual paths and names, not vague descriptions. Include short c
 
 Write the summary as a clear, scannable markdown file. No rigid template - structure it in whatever way best serves the user's description. Keep it concise but complete.
 
+At the very end of the file, always include this metadata line exactly as shown:
+
+```
+<!-- previous_session: ${CLAUDE_SESSION_ID} -->
+```
+
 ## Context
 
 The handoff file is automatically picked up by the next session via a SessionStart hook.
