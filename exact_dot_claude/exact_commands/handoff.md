@@ -4,7 +4,7 @@ allowed-tools: Write(*/.claude/session-handoff-*.md)
 
 # Session Handoff
 
-Create a handoff summary for the next session context, written to `.claude/session-handoff-<YYYY-MM-DDTHHMMSS>-<subject>.md` in the project root. Derive a short kebab-case subject (2-4 words) from the arguments.
+Create a handoff summary for the next session context, written to `.claude/session-handoff-<subject>.md` in the project root. Derive a short kebab-case subject (2-4 words) from the arguments.
 
 ## Arguments
 
