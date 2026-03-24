@@ -1,6 +1,10 @@
+---
+allowed-tools: Write(*/.claude/session-handoff-*.md)
+---
+
 # Session Handoff
 
-Create a handoff summary for the next session context, written to `.claude/session-handoff.md` in the project root.
+Create a handoff summary for the next session context, written to `.claude/session-handoff-<YYYY-MM-DDTHHMMSS>-<subject>.md` in the project root. Derive a short kebab-case subject (2-4 words) from the arguments.
 
 ## Arguments
 
@@ -22,12 +26,13 @@ Be specific: use actual paths and names, not vague descriptions. Include short c
 
 Write the summary as a clear, scannable markdown file. No rigid template - structure it in whatever way best serves the user's description. Keep it concise but complete.
 
-At the very end of the file, always include this metadata line exactly as shown:
+At the very end of the file, always include these metadata lines:
 
 ```
 <!-- previous_session: ${CLAUDE_SESSION_ID} -->
+<!-- previous_project: <absolute path of the current working directory> -->
 ```
 
 ## Context
 
-The handoff file is automatically picked up by the next session via a SessionStart hook.
+The handoff file is picked up by the next session via the `/pickup` command.
