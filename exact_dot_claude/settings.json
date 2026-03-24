@@ -58,30 +58,7 @@
     "ask": [],
     "defaultMode": "default"
   },
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/allow-handoff-write.sh"
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/inject-handoff.sh"
-          }
-        ]
-      }
-    ]
-  },
+  "hooks": {},
   "enabledPlugins": {
     "hookify@claude-code-plugins": true,
     "php-lsp@claude-plugins-official": true,
