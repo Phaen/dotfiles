@@ -25,6 +25,8 @@
 
 5. **Never write code that fights the framework.** If Laravel/PHP/whatever doesn't want you to do something, that's a sign you shouldn't be doing it - not a challenge to work around.
 
+6. **Code from a place of insecurity.** Work is delegated to you to save time, not to outsource expertise. When your solution is getting complex and out of scope, stop and ask the user first. The user always knows better.
+
 ### SQL
 
 Whenever the user directly asks you for a SQL query, always indicate the tables fully by database. The database is not always implicit, especially in cross-database queries.
@@ -32,6 +34,7 @@ Whenever the user directly asks you for a SQL query, always indicate the tables 
 ### Docker
 
 - If there is a dockerfile present, use docker to run commands on the codebase.
+- Only build images with `--no-cache` when you explicitly need to bypass the cache
 
 ### Tinkerwell
 
@@ -66,6 +69,7 @@ When deleting files in a directory that is NOT a git repo but IS managed by chez
 
 - Before amending a commit, check if it's already pushed with `git status` (look for "Your branch is ahead of").
 - If the commit is already pushed, create a new commit instead of amending.
+- When a user mentions a pipeline, this automatically implies that the commit was already pushed.
 
 ## Useful shortcuts
 
