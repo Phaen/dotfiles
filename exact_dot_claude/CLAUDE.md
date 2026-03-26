@@ -35,6 +35,7 @@ Whenever the user directly asks you for a SQL query, always indicate the tables 
 
 - If there is a dockerfile present, use docker to run commands on the codebase.
 - Only build images with `--no-cache` when you explicitly need to bypass the cache
+- Start containers with `--wait`, to make sure they're fully bootstrapped before taking actions on them.
 
 ### Tinkerwell
 
