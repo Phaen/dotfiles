@@ -1,3 +1,38 @@
+-- Scan phpstan*.neon* files and return the one whose paths: match the buffer
+local function find_phpstan_config(bufname)
+  if bufname == "" then return nil end
+  local rel_path = vim.fn.fnamemodify(bufname, ":.")
+  if rel_path:sub(1, 1) == "/" then return nil end -- not under cwd
+
+  local cwd = vim.fn.getcwd()
+  local configs = vim.fn.glob(cwd .. "/phpstan*.neon*", false, true)
+  for _, config_path in ipairs(configs) do
+    local f = io.open(config_path, "r")
+    if f then
+      local in_paths = false
+      for line in f:lines() do
+        if line:match("^%s*paths:%s*$") then
+          in_paths = true
+        elseif in_paths then
+          local path = line:match("^%s*-%s*(.-)%s*$")
+          if path then
+            local normalized = path:gsub("/+$", "") .. "/"
+            if rel_path:sub(1, #normalized) == normalized then
+              f:close()
+              return config_path
+            end
+          elseif line:match("%S") then
+            in_paths = false
+          end
+        end
+      end
+      f:close()
+    end
+  end
+
+  return nil -- let phpstan auto-discover
+end
+
 -- Get target directory from docker compose container that cwd is bound to
 local function get_docker_target()
   local handle = io.popen("docker compose ps --format '{{.Labels}}'")
@@ -131,6 +166,28 @@ return {
           table.insert(opts.linters_by_ft.php, linter)
         end
       end
+
+      local phpcs = require("lint").linters.phpcs
+      local original_parser = phpcs.parser
+      phpcs.parser = function(output, bufnr)
+        local json_start = output:find("{")
+        if not json_start then
+          return {}
+        end
+        return original_parser(output:sub(json_start), bufnr)
+      end
+
+      vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "BufReadPost" }, {
+        pattern = "*.php",
+        callback = function(ev)
+          local args = { "analyze", "--error-format=json", "--no-progress", "--memory-limit=1G" }
+          local config = find_phpstan_config(vim.api.nvim_buf_get_name(ev.buf))
+          if config then
+            vim.list_extend(args, { "-c", config })
+          end
+          require("lint").linters.phpstan.args = args
+        end,
+      })
 
       return opts
     end,
