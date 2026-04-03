@@ -16,21 +16,25 @@ if vim.g.neovide then
 
   -- Zoom in and out with <c-+> and <c-->
 
-  local default_scale = 0.8
-  local scale_step = 1.1
+  local default_font_size = 14
 
-  vim.g.neovide_scale_factor = default_scale
-  local change_scale_factor = function(delta)
-    vim.g.neovide_scale_factor = vim.g.neovide_scale_factor * delta
+  vim.opt.guifont = "FiraCode\\ Nerd\\ Font:h" .. default_font_size
+
+  local function change_font_size(delta)
+    local size = tonumber(vim.o.guifont:match(":h(%d+)"))
+    if size then
+      vim.opt.guifont = vim.o.guifont:gsub(":h%d+", ":h" .. (size + delta))
+    end
   end
+
   vim.keymap.set("n", "<C-=>", function()
-    change_scale_factor(scale_step)
+    change_font_size(1)
   end)
   vim.keymap.set("n", "<C-->", function()
-    change_scale_factor(1 / scale_step)
+    change_font_size(-1)
   end)
   vim.keymap.set("n", "<C-0>", function()
-    vim.g.neovide_scale_factor = default_scale
+    vim.opt.guifont = "FiraCode\\ Nerd\\ Font:h" .. default_font_size
   end)
 
   local function toggle_transparency()
