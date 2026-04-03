@@ -66,6 +66,23 @@ When deleting files in a directory that is NOT a git repo but IS managed by chez
 - Use `chezmoi remove <file>` instead of `rm` to keep the source state in sync.
 - Check if a directory is chezmoi-managed with `chezmoi managed --include=files | grep -q <path>`.
 
+#### Dotfiles structure
+
+Chezmoi source: `~/.local/share/chezmoi` → remote `git@github.com:Phaen/dotfiles.git` (autoCommit + autoPush enabled).
+
+Shell config loads in this order:
+1. `~/.zshrc` / `~/.bashrc` (chezmoi-tracked) — loads Oh My Zsh / Bash-it, sources `~/.custom`
+2. `~/.custom` (chezmoi-tracked) — defines helpers (`source_local`, `source_optional`, `command_exists`), sources all `~/.custom.d/*.sh`, then sources `~/.custom.local`
+3. `~/.custom.d/` (chezmoi-tracked, `exact_dot_custom.d`) — modular scripts: `docker.sh`, `environment.sh`, `misc.sh`, `provision.sh`
+4. `~/.zshrc.local` / `~/.bashrc.local` — machine-specific overrides (not tracked, sourced via `source_local`)
+5. `~/.custom.local` — machine-specific extras (not tracked, optional)
+
+Key conventions:
+- **`.local` files** = machine-specific, never in git.
+- **`exact_dot_` prefix** in chezmoi = directory contents are fully controlled (extra files get deleted on `chezmoi apply`). Used for `~/.custom.d/` and `~/.claude/`.
+- **`.chezmoiignore`** selectively tracks `~/.claude/`: only `CLAUDE.md`, `settings.json`, `commands/`, and `hooks/` are synced.
+- **`.chezmoiexternal.toml`** pulls Oh My Zsh, plugins (zsh-syntax-highlighting, laravel-sail), powerlevel10k theme, bash-it, and tmux config from upstream archives/repos with weekly refresh.
+
 ### Git
 
 - Before amending a commit, check if it's already pushed with `git status` (look for "Your branch is ahead of").
