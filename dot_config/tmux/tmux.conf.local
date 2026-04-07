@@ -407,6 +407,9 @@ set -g mode-keys vi
 # display a message after toggling mouse support
 bind m run "cut -c3- '#{TMUX_CONF}' | sh -s _toggle_mouse" \; display 'mouse #{?#{mouse},on,off}'
 
+# restart current pane
+bind R respawn-pane -k
+
 # move status line to top
 #set -g status-position top
 
