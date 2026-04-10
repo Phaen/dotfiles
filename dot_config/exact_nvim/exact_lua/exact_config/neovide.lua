@@ -16,7 +16,7 @@ if vim.g.neovide then
 
   -- Zoom in and out with <c-+> and <c-->
 
-  local default_font_size = 14
+  local default_font_size = 12
 
   vim.opt.guifont = "FiraCode\\ Nerd\\ Font:h" .. default_font_size
 
