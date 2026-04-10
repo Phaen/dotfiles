@@ -23,7 +23,15 @@ return {
     },
     opts = {
       servers = {
-        twiggy_language_server = {},
+        twiggy_language_server = {
+          settings = {
+            twiggy = {
+              diagnostics = {
+                twigCsFixer = false,
+              },
+            },
+          },
+        },
       },
     },
   },
