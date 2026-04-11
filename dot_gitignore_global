@@ -1,0 +1,19 @@
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# PHPactor
+.phpactor.json
+.phpactor.yml
+.phpactor/*
+
+# PhpCSFixer
+.php-cs-fixer.cache
+
+#PHPDebug
+xdebug.log
+
+tinkerwell
+.claude
