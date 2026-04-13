@@ -2,12 +2,6 @@
 
 Structured problem-solving with an explicit solution tree. Required before implementing any non-trivial fix. Self-invoked when a test, build, or tool failure occurs during implementation.
 
-## Start
-
-`bash /Users/pablo/.claude/hooks/solve-state.sh "${CLAUDE_SESSION_ID}" solving`
-
----
-
 ## Problem
 
 $ARGUMENTS
@@ -111,17 +105,13 @@ Stop. Do not edit anything. Report to the user.
 <selected id="N"/>
 ```
 
-Then unlock:
-
-`bash /Users/pablo/.claude/hooks/solve-state.sh "${CLAUDE_SESSION_ID}" resolved`
-
-If the validator rejects the tree, fix it by re-declaring any invalid blocks — the last occurrence of each block wins, so you can correct without starting over.
+If the validator rejects the tree on stop, fix it by re-declaring any invalid blocks — the last occurrence of each block wins, so you can correct without starting over.
 
 ---
 
 ## Implementation
 
-Only after the unlock command may you use Edit or Write tools.
+Proceed to implementation. The edit gate validates the tree automatically on first edit attempt.
 
 ---
 

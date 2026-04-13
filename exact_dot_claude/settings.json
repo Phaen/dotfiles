@@ -55,14 +55,23 @@
       "Bash(__NEW_LINE__ ssl_reject_handshake on)",
       "Bash(__NEW_LINE__ })",
       "Bash(EOF)",
-      "Bash(__NEW_LINE__ d nginx -t)",
-      "Bash(bash /Users/pablo/.claude/hooks/solve-state.sh:*)"
+      "Bash(__NEW_LINE__ d nginx -t)"
     ],
     "deny": [],
     "ask": [],
     "defaultMode": "default"
   },
   "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/pablo/.claude/hooks/solve-trigger.sh"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Edit|Write|MultiEdit",
