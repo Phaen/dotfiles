@@ -55,18 +55,53 @@
       "Bash(__NEW_LINE__ ssl_reject_handshake on)",
       "Bash(__NEW_LINE__ })",
       "Bash(EOF)",
-      "Bash(__NEW_LINE__ d nginx -t)"
+      "Bash(__NEW_LINE__ d nginx -t)",
+      "Bash(bash /Users/pablo/.claude/hooks/solve-state.sh:*)"
     ],
     "deny": [],
     "ask": [],
     "defaultMode": "default"
   },
-  "hooks": {},
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/pablo/.claude/hooks/edit-guard.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/pablo/.claude/hooks/bash-failure.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/pablo/.claude/hooks/stop-guard.sh"
+          }
+        ]
+      }
+    ]
+  },
   "enabledPlugins": {
     "code-simplifier@claude-plugins-official": true,
     "commit-commands@claude-plugins-official": true,
     "hookify@claude-code-plugins": true,
     "php-lsp@claude-plugins-official": true
   },
-  "autoUpdatesChannel": "stable"
+  "autoUpdatesChannel": "stable",
+  "effortLevel": "low"
 }
