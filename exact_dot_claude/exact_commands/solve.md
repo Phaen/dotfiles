@@ -111,7 +111,7 @@ If the validator rejects the tree on stop, fix it by re-declaring any invalid bl
 
 ## Implementation
 
-Proceed to implementation. The edit gate validates the tree automatically on first edit attempt.
+Only after stopping with a complete tree may you use Edit or Write tools. The stop hook validates and unlocks automatically.
 
 ---
 
