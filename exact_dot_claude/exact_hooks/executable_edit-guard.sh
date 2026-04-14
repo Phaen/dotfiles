@@ -22,7 +22,11 @@ case "$STATE" in
     exit 0
     ;;
   solving*)
-    echo "EDIT BLOCKED: Solve tree is in progress. Complete investigation and reach a <resolved> branch before making any changes." >&2
+    RESOLVE_MSG=$(bash /Users/pablo/.claude/hooks/solve-state.sh "$SESSION" "resolved" 2>&1)
+    if [ $? -eq 0 ]; then
+      exit 0  # tree validated and unlocked — allow edit
+    fi
+    echo "EDIT BLOCKED: ${RESOLVE_MSG}" >&2
     exit 2
     ;;
   required)

@@ -7,25 +7,6 @@ INPUT=$(cat)
 SESSION=$(echo "$INPUT" | jq -r '.session_id // ""' 2>/dev/null)
 MESSAGE=$(echo "$INPUT" | jq -r '.assistant_response // .message // ""' 2>/dev/null)
 
-# Block stopping mid-solve
-if [ -n "$SESSION" ]; then
-  STATE_FILE="${PWD}/.claude/solve_state_${SESSION}"
-  if [ -f "$STATE_FILE" ]; then
-    STATE=$(cat "$STATE_FILE" 2>/dev/null)
-    if [[ "$STATE" == solving* ]]; then
-      RESOLVE_MSG=$(bash /Users/pablo/.claude/hooks/solve-state.sh "$SESSION" "resolved" 2>&1)
-      if [ $? -eq 0 ]; then
-        exit 0  # tree validated and unlocked automatically
-      fi
-      echo "STOP BLOCKED: Solve tree is incomplete. ${RESOLVE_MSG}" >&2
-      exit 2
-    fi
-    if [ "$STATE" = "required" ]; then
-      echo "STOP BLOCKED: A failure was detected and requires a new solve tree. Run /solve before stopping." >&2
-      exit 2
-    fi
-  fi
-fi
 
 if [ -z "$MESSAGE" ]; then
   exit 0
