@@ -36,5 +36,16 @@ return {
         },
       },
     })
+
+    -- CodeDiffFiller uses `default = true`, so defining it here (after setup)
+    -- prevents the plugin from resetting it on subsequent opens.
+    -- The plugin hardcodes fg = "#444444" which looks harsh on catppuccin-latte.
+    local function set_filler_hl()
+      local fg = vim.o.background == "light" and "#dde0e8" or "#444444"
+      vim.api.nvim_set_hl(0, "CodeDiffFiller", { fg = fg })
+    end
+
+    set_filler_hl()
+    vim.api.nvim_create_autocmd("ColorScheme", { callback = set_filler_hl })
   end,
 }

@@ -12,6 +12,7 @@ return {
         transparent = vim.g.transparent_background, -- enable transparent floating windows
         solid = false, -- use solid styling for floating windows, see |winborder|
       },
+
     },
   },
   {
