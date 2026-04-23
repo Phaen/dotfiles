@@ -111,4 +111,4 @@ Shell config loads in this order:
 3. `~/.custom.d/*.sh` — the shell environment scripts above (`environment.sh`, `docker.sh`, `misc.sh`, `provision.sh`)
 4. `~/.custom.local` / `~/.zshrc.local` / `~/.bashrc.local` — machine-local overrides, untracked
 
-This file and everything above is managed by chezmoi (`~/.local/share/chezmoi` → `git@github.com:Phaen/dotfiles.git`, autoCommit + autoPush). Also tracked: `~/.config/kitty/`, `~/.config/nvim/`, `~/.config/tmux/tmux.conf.local`, and `~/.claude/` (selectively: `CLAUDE.md`, `settings.json`, `commands/`, `hooks/`). External tools — Oh My Zsh, Bash-it, Powerlevel10k, tmux base config — are pulled via `.chezmoiexternal.toml` and refreshed weekly; don't edit them directly.
+This file and everything above is managed by chezmoi (`~/.local/share/chezmoi` → `git@github.com:Phaen/dotfiles.git`, autoCommit + autoPush). Also tracked: `~/.config/kitty/`, `~/.config/nvim/`, `~/.config/tmux/tmux.conf.local`, and `~/.claude/CLAUDE.md`. External tools — Oh My Zsh, Bash-it, Powerlevel10k, tmux base config — are pulled via `.chezmoiexternal.toml` and refreshed weekly; don't edit them directly.
