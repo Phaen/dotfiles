@@ -4,7 +4,7 @@
 
 ### Problem Solving - CRITICAL
 
-**When something doesn't work, STOP and THINK before acting:**
+**When something doesn't work as expected, take a step back and re-evaluate.**
 
 1. **Try the simplest fix first.** If that doesn't work, try ONE more simple thing. If that fails, STOP and ASK.
 
@@ -25,8 +25,6 @@
 
 5. **Never write code that fights the framework.** If Laravel/PHP/whatever doesn't want you to do something, that's a sign you shouldn't be doing it - not a challenge to work around.
 
-6. **Code from a place of insecurity.** Work is delegated to you to save time, not to outsource expertise. When your solution is getting complex and out of scope, stop and ask the user first. The user always knows better.
-
 ### SQL
 
 Whenever the user directly asks you for a SQL query, always indicate the tables fully by database. The database is not always implicit, especially in cross-database queries.
@@ -34,6 +32,7 @@ Whenever the user directly asks you for a SQL query, always indicate the tables 
 ### Docker
 
 - If there is a dockerfile present, use docker to run commands on the codebase.
+  - The exception are projects by Lento. Those are managed through Herd.
 - Only build images with `--no-cache` when you explicitly need to bypass the cache.
 - Start containers with `--wait`, to make sure they're fully bootstrapped before taking actions on them.
 
@@ -97,10 +96,6 @@ These commands and utilities are always available in this environment.
 ### PATH
 
 The following dirs are automatically prepended to `$PATH` if they exist: `~/.local/bin`, `~/bin`, `~/.npm-global/bin`, `~/.cargo/bin`, `~/.composer/vendor/bin`, `~/.config/composer/vendor/bin`, `~/.yarn/bin`, `~/.pyenv/bin`, `~/.rbenv/bin`, `~/.deno/bin`.
-
-### Provision
-
-Bootstrap functions for new machines: `provision_mise`, `provision_node`, `provision_python`, `provision_zig` (0.12.0 → `~/.local/bin/zig`), `provision_all`.
 
 ## Dotfiles
 
