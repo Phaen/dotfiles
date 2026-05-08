@@ -19,8 +19,49 @@ unset MAILCHECK
 # Version control status checking within the prompt
 export SCM_CHECK=true
 
+# Prompt layout matching p10k: dir + vcs on left, duration on right
+POWERLINE_LEFT_PROMPT="cwd scm"
+POWERLINE_RIGHT_PROMPT="clock duration"
+
+# Colors matching p10k
+POWERLINE_CWD_COLOR=4           # p10k DIR_BACKGROUND=4 (blue)
+POWERLINE_SCM_CLEAN_COLOR=2     # p10k VCS_CLEAN_BACKGROUND=2 (green)
+POWERLINE_SCM_UNSTAGED_COLOR=2  # p10k VCS_UNTRACKED_BACKGROUND=2 (green)
+POWERLINE_SCM_STAGED_COLOR=3    # yellow
+POWERLINE_SCM_DIRTY_COLOR=3     # p10k VCS_MODIFIED_BACKGROUND=3 (yellow)
+POWERLINE_COMMAND_DURATION_COLOR=3  # p10k COMMAND_EXECUTION_TIME_BACKGROUND=3 (yellow)
+POWERLINE_CLOCK_COLOR=7             # p10k TIME_BACKGROUND=7 (light gray)
+POWERLINE_PADDING=1
+
+# OS icon matching p10k os_icon (bg=7, fg=232)
+POWERLINE_PROMPT_DISTRO_LOGO=true
+case "$(uname)" in
+    Darwin) PROMPT_DISTRO_LOGO=" $(printf '\xef\x85\xb9')  " ;;  # nf-dev-apple
+    Linux)  PROMPT_DISTRO_LOGO=" $(printf '\xef\x85\xbc')  " ;;  # nf-fa-linux
+    *)      PROMPT_DISTRO_LOGO=" $(printf '\xef\x85\xbc')  " ;;
+esac
+PROMPT_DISTRO_LOGO_COLOR=232
+PROMPT_DISTRO_LOGO_COLORBG=7
+
+# Command duration: enable and match p10k's 3-second threshold
+BASH_IT_COMMAND_DURATION=true
+COMMAND_DURATION_MIN_SECONDS=3
+
 # Load Bash It
 source "$BASH_IT"/bash_it.sh
+
+# Add home/folder icon to cwd segment matching p10k dir icons
+__powerline_cwd_prompt() {
+    local path icon
+    path=$(dirs +0)
+    [[ "$path" == "~"* ]] && icon="$(printf '\xef\x80\x95') " || icon="$(printf '\xef\x81\xbb') "
+    printf '%s|%s' "${icon}${path}" "${CWD_THEME_PROMPT_COLOR:-4}"
+}
+
+# Fix right-prompt alignment: bash-it miscounts \D{} PS1 escape width vs rendered time width
+__powerline_clock_prompt() {
+    printf '%s|%s' "$(date "+${THEME_CLOCK_FORMAT:-%H:%M:%S}") $(printf '\xef\x80\x97')" "${CLOCK_THEME_PROMPT_COLOR:-7}"
+}
 
 ##########
 # CUSTOM #
