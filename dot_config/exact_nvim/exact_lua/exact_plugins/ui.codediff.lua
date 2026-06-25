@@ -7,6 +7,7 @@ return {
       diff = {
         disable_inlay_hints = true,
         max_computation_time_ms = 5000,
+        ignore_trim_whitespace = true,
       },
       explorer = {
         position = "left",
