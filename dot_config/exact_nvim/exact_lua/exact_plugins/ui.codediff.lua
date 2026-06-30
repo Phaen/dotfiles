@@ -12,6 +12,7 @@ return {
       explorer = {
         position = "left",
         width = 40,
+        view_mode = "tree",
       },
       keymaps = {
         view = {
