@@ -32,7 +32,7 @@ Whenever the user directly asks you for a SQL query, always indicate the tables 
 ### Docker
 
 - If there is a dockerfile present, use docker to run commands on the codebase.
-  - The exception are projects by Lento. Those are managed through Herd.
+  - The exception are projects by Lento. Those are managed through Valet.
 - Only build images with `--no-cache` when you explicitly need to bypass the cache.
 - Start containers with `--wait`, to make sure they're fully bootstrapped before taking actions on them.
 
