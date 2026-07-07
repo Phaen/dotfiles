@@ -17,7 +17,7 @@ DISABLE_UNTRACKED_FILES_DIRTY="true"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 HYPHEN_INSENSITIVE="true"
 
-plugins=(aliases composer dirhistory docker docker-compose git vi-mode kitty fuzzy-docker laravel-sail chezmoi)
+plugins=(aliases composer dirhistory docker docker-compose git vi-mode kitty fuzzy-docker laravel laravel-sail chezmoi)
 
 if command_exists thefuck; then
     plugins+=(thefuck)
