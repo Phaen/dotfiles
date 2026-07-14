@@ -11,11 +11,7 @@ map("n", "<C-q>", "<cmd>q<cr>", { desc = "Quit", remap = true })
 -- dashboard instead. Delete first, then reopen once the window has settled on
 -- its replacement buffer (scheduling avoids racing Snacks.bufdelete).
 local function delete_buffer_to_dashboard()
-  Snacks.bufdelete({
-    filter = function(buf)
-      return vim.bo[buf].filetype ~= "snacks_dashboard"
-    end,
-  })
+  Snacks.bufdelete()
   vim.schedule(function()
     local buf = vim.api.nvim_get_current_buf()
     local win = vim.api.nvim_get_current_win()
