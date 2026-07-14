@@ -25,14 +25,21 @@
 
 5. **Never write code that fights the framework.** If Laravel/PHP/whatever doesn't want you to do something, that's a sign you shouldn't be doing it - not a challenge to work around.
 
+### Tests
+
+- Never mention passing tests unprompted. A complete implementation already assumes that all related tests passed. Things like "all tests green" is just noise.
+
 ### SQL
 
-Whenever the user directly asks you for a SQL query, always indicate the tables fully by database. The database is not always implicit, especially in cross-database queries.
+- Whenever the user directly asks you for a SQL query, always indicate the tables fully by database. The database is not always implicit, especially in cross-database queries.
+
+### Comments
+
+- NEVER write imperatives in code comments. This is not StackOverflow where you're providing context alongside the code. The context belongs in the session, while the code and its comments should remain self-contained.
 
 ### Docker
 
 - If there is a dockerfile present, use docker to run commands on the codebase.
-  - The exception are projects by Lento. Those are managed through Valet.
 - Only build images with `--no-cache` when you explicitly need to bypass the cache.
 - Start containers with `--wait`, to make sure they're fully bootstrapped before taking actions on them.
 
@@ -49,20 +56,19 @@ Whenever you want to perform any action on a database:
 
 - Use `.env` files to figure out database connections.
 - Use configuration files to additionally relate connection names to the actual database names.
-- Always do this instead of guessing the details.
 
 ### Translations
 
 Whenever you add to a UI and translation helpers are already present in the project:
 
 - Continue to use the helpers for all UI labels that you add.
-- Create an agent to add all translations for the newly added labels.
+- When wrapping up an implementation (on commit, etc.) create an agent to add all translations for all newly added labels.
 
 ### Git
 
 - Before amending a commit, check if it's already pushed with `git status` (look for "Your branch is ahead of").
 - If the commit is already pushed, create a new commit instead of amending.
-- When a user mentions a pipeline, this automatically implies that the commit was already pushed.
+- When a user mentions CI, this automatically implies that the commit was already pushed.
 
 ### Chezmoi
 
@@ -86,18 +92,11 @@ These commands and utilities are always available in this environment.
 - `fdex <query>` / `fdlog <query>` — fzf-select a container by name, then exec/log
 - `dserv [-p]` — stop containers on ports 80/465, fzf-select and start another; `-p` starts the full Compose project
 
-### Utilities
-
-- `cdf [query]` — fzf-select an immediate subdirectory and cd into it
-- `persistent <cmd>` — auto-restart a command on exit with a 1s delay
-- `venv` — `source venv/bin/activate`
-- `sudou` — `sudo TERM=xterm-256color -iu` (avoids kitty terminal type issues when sudoing)
-
 ### PATH
 
 The following dirs are automatically prepended to `$PATH` if they exist: `~/.local/bin`, `~/bin`, `~/.npm-global/bin`, `~/.cargo/bin`, `~/.composer/vendor/bin`, `~/.config/composer/vendor/bin`, `~/.yarn/bin`, `~/.pyenv/bin`, `~/.rbenv/bin`, `~/.deno/bin`.
 
-## Dotfiles
+### Dotfiles
 
 Shell config loads in this order:
 
@@ -107,3 +106,21 @@ Shell config loads in this order:
 4. `~/.custom.local` / `~/.zshrc.local` / `~/.bashrc.local` — machine-local overrides, untracked
 
 This file and everything above is managed by chezmoi (`~/.local/share/chezmoi` → `git@github.com:Phaen/dotfiles.git`, autoCommit + autoPush). Also tracked: `~/.config/kitty/`, `~/.config/nvim/`, `~/.config/tmux/tmux.conf.local`, and `~/.claude/CLAUDE.md`. External tools — Oh My Zsh, Bash-it, Powerlevel10k, tmux base config — are pulled via `.chezmoiexternal.toml` and refreshed weekly; don't edit them directly.
+
+## Context
+
+This is a multi-machine `CLAUDE.md` and may run across both MacOS and Linux.
+
+### Lento
+
+Lento projects reside in ~/Lento, for these apply the following:
+
+- Never use docker for the project itself. The projects are served raw on the command line and proxied through Valet.
+- Its resources are served through a docker compose stack at ~/lento/docker-compose
+
+### Cage Undefined
+
+Cage Undefined projects reside in ~/CU, for these apply the following:
+
+- I'm the executive director. My actions regularly bypass the regular chain (e.g. pushing directly to main, etc.)
+- These are animal rights projects and their impact saves lives.

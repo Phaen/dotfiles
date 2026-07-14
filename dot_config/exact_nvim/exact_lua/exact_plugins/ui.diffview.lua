@@ -88,8 +88,8 @@ return {
     --   text        -> CodeDiffCharDelete  (changed chars, two-tier pop)
     local function set_diff_hl()
       local c = vim.o.background == "light"
-          and { filler = "#dde0e8", add = "#d0e2d1", del = "#eac8d3", text = "#d7b8c2" }
-          or { filler = "#444444", add = "#364143", del = "#443244", text = "#5f465f" }
+          and { filler = "#dde0e8", add = "#d0e2d1", del = "#eac8d3", text = "#d7b8c2", chg = "#c9d6f0", chgtext = "#b3c4e8" }
+          or { filler = "#444444", add = "#364143", del = "#443244", text = "#5f465f", chg = "#2b3b58", chgtext = "#3a4f78" }
       local hl = function(g, o) vim.api.nvim_set_hl(0, g, o) end
 
       -- Deleted-line filler: fg=bg collapses the slashes into a solid block.
@@ -103,11 +103,12 @@ return {
       -- routes deletions to instead of green DiffAdd. bg only so the deleted
       -- code stays readable via its syntax fg.
       hl("DiffviewDiffAddAsDelete", { bg = c.del })
-      -- Changed lines + the changed chars within them (two-tier pop).
-      hl("DiffChange", { bg = c.del })
-      hl("DiffviewDiffChange", { bg = c.del })
-      hl("DiffText", { bg = c.text })
-      hl("DiffviewDiffText", { bg = c.text })
+      -- Changed lines + the changed chars within them (two-tier pop). Blue,
+      -- per diff convention — change is its own color, distinct from delete-red.
+      hl("DiffChange", { bg = c.chg })
+      hl("DiffviewDiffChange", { bg = c.chg })
+      hl("DiffText", { bg = c.chgtext })
+      hl("DiffviewDiffText", { bg = c.chgtext })
     end
 
     set_diff_hl()

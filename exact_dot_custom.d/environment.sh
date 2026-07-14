@@ -12,6 +12,7 @@ BIN_PATHS=(
   "$HOME/.pyenv/bin"
   "$HOME/.rbenv/bin"
   "$HOME/.deno/bin"
+  "$HOME/.local/share/mise/shims"
 )
 for bin_path in "${BIN_PATHS[@]}"; do
   if [ -d "$bin_path" ] && [[ ":$PATH:" != *":$bin_path:"* ]]; then
