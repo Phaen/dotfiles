@@ -38,7 +38,7 @@ return {
     }
   end,
   keys = {
-    { "<leader>cp", "<cmd>CodeSnap<cr>", mode = "x", desc = "Snap selected code to clipboard" },
-    { "<leader>cP", "<cmd>CodeSnapHighlight<cr>", mode = "x", desc = "Snap selected code to clipboard with highlight" },
+    { "<leader>cp", ":<C-u>CodeSnap<cr>", mode = "x", desc = "Snap selected code to clipboard" },
+    { "<leader>cP", ":<C-u>CodeSnapHighlight<cr>", mode = "x", desc = "Snap selected code to clipboard with highlight" },
   },
 }
