@@ -48,6 +48,7 @@ return {
       -- changes drop from the hunks and the file list, not just the highlight.
       diffopt = {
         iwhiteall = true,
+        algorithm = "histogram",
       },
       view = {
         -- Side-by-side for normal diffs.
@@ -71,25 +72,13 @@ return {
       },
     })
 
-    -- The piece that didn't exist when diffview was first abandoned: native
-    -- char-level inline highlighting. diffview runs on real diff-mode windows,
-    -- so this global applies inside it. (linematch is already set elsewhere in
-    -- your config, which aligns hunks so the char diff lands on the right lines.)
+    -- Char-level inline highlighting; applies inside diffview's diff-mode windows.
     vim.opt.diffopt:append("inline:char")
 
-    -- Mirror codediff's runtime colors so both tools look identical, and pin
-    -- diffview's *own* groups (not just base Diff*) since enhanced_diff_hl makes
-    -- diffview render through them. Setting them here also overrides the Comment
-    -- relink that made deletions too dark on latte.
-    --   filler      -> CodeDiffFiller     (tuned in ui.codediff; fg=bg hides the
-    --                                       fillchar slashes into a solid wash)
-    --   add         -> CodeDiffLineInsert  (added lines, right/new side)
-    --   del         -> CodeDiffLineDelete  (removed lines, left/old side)
-    --   text        -> CodeDiffCharDelete  (changed chars, two-tier pop)
     local function set_diff_hl()
       local c = vim.o.background == "light"
-          and { filler = "#dde0e8", add = "#d0e2d1", del = "#eac8d3", text = "#d7b8c2", chg = "#c9d6f0", chgtext = "#b3c4e8" }
-          or { filler = "#444444", add = "#364143", del = "#443244", text = "#5f465f", chg = "#2b3b58", chgtext = "#3a4f78" }
+          and { filler = "#dde0e8", add = "#d0e2d1", del = "#eac8d3", chg = "#ecd9bd", chgtext = "#e0c599" }
+          or { filler = "#444444", add = "#364143", del = "#443244", chg = "#4a3f2a", chgtext = "#65552f" }
       local hl = function(g, o) vim.api.nvim_set_hl(0, g, o) end
 
       -- Deleted-line filler: fg=bg collapses the slashes into a solid block.
@@ -103,8 +92,6 @@ return {
       -- routes deletions to instead of green DiffAdd. bg only so the deleted
       -- code stays readable via its syntax fg.
       hl("DiffviewDiffAddAsDelete", { bg = c.del })
-      -- Changed lines + the changed chars within them (two-tier pop). Blue,
-      -- per diff convention — change is its own color, distinct from delete-red.
       hl("DiffChange", { bg = c.chg })
       hl("DiffviewDiffChange", { bg = c.chg })
       hl("DiffText", { bg = c.chgtext })
