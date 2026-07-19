@@ -49,6 +49,7 @@ When asked to create a Tinkerwell script:
 
 - Use Log over echo so the output can be streamed back to the IDE.
 - Always create the scripts in the Tinkerwell folder in the project root (this folder is gitignored).
+- Do not prefix the script with `declare(strict_types=1);` — it does not work in Tinkerwell.
 
 ### Databases
 
