@@ -58,6 +58,32 @@ local function get_docker_target()
   return "/var/www/html" -- hail mary
 end
 
+-- Intelephense flags imports as unused (P1003) even when referenced in docblocks.
+-- Drop those diagnostics when the symbol's short name occurs anywhere beyond the
+-- use statement itself — a genuine code usage would have suppressed the warning
+-- server-side, so a second occurrence can only be a docblock (or string) reference.
+local function filter_docblock_unused(err, result, ctx, ...)
+  if result and result.diagnostics then
+    local bufnr = vim.uri_to_bufnr(result.uri)
+    if vim.api.nvim_buf_is_loaded(bufnr) then
+      local text = table.concat(vim.api.nvim_buf_get_lines(bufnr, 0, -1, false), "\n")
+      result.diagnostics = vim.tbl_filter(function(d)
+        if d.code ~= "P1003" then return true end
+        local symbol = d.message:match("^Symbol '([^']+)'")
+        local short = symbol and symbol:match("([^\\]+)$")
+        if not short then return true end
+        local occurrences = 0
+        for _ in text:gmatch("%f[%w_]" .. vim.pesc(short) .. "%f[^%w_]") do
+          occurrences = occurrences + 1
+          if occurrences > 1 then return false end
+        end
+        return true
+      end, result.diagnostics)
+    end
+  end
+  return vim.lsp.handlers["textDocument/publishDiagnostics"](err, result, ctx, ...)
+end
+
 ---@type LazyPluginSpec[]
 return {
   -- Add treesitter syntax
@@ -74,7 +100,7 @@ return {
         -- no pint, phpcs, phpcbf: so we only use it if its installed in the project
         "php-cs-fixer", -- our backup formatter, if nothing is installed
         "phpstan",
-        "intelephense",
+        "phpantom_lsp",
         "php-debug-adapter",
       },
     },
@@ -83,9 +109,31 @@ return {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
+        -- Trialing phpantom; intelephense config kept for easy rollback.
+        -- Delete the loser after the trial.
+        phpantom_lsp = {},
         intelephense = {
+          enabled = false,
+          handlers = {
+            ["textDocument/publishDiagnostics"] = filter_docblock_unused,
+          },
           settings = {
             intelephense = {
+              diagnostics = {
+                -- Only syntax errors; everything else is phpstan's job via nvim-lint
+                unexpectedTokens = true,
+                undefinedTypes = false,
+                undefinedFunctions = false,
+                undefinedConstants = false,
+                undefinedClassConstants = false,
+                undefinedMethods = false,
+                undefinedProperties = false,
+                undefinedVariables = false,
+                duplicateSymbols = false,
+                unusedSymbols = true, -- phpstan has no unused-import rule
+                argumentCount = false,
+                deprecated = false,
+              },
               environment = {
                 includePaths = {
                   -- Allow stubs to be autodiscovered

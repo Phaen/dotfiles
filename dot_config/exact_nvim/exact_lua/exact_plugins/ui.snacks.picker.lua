@@ -23,6 +23,23 @@ return {
 
     -- Filename color for files that have an open (listed) buffer. Tune freely.
     vim.api.nvim_set_hl(0, "SnacksExplorerBufOpen", { link = "Special", default = true })
+
+    -- The formatter above only runs when the list re-renders, which buffer
+    -- open/close doesn't trigger by itself — the tint otherwise piggybacks on
+    -- incidental redraws (fs events, follow_file scrolling). The schedule also
+    -- puts BufDelete past the actual unlisting, so the tint clears correctly.
+    vim.api.nvim_create_autocmd({ "BufAdd", "BufDelete" }, {
+      callback = function(ev)
+        if not _G.Snacks or vim.bo[ev.buf].buftype ~= "" then
+          return
+        end
+        vim.schedule(function()
+          for _, p in ipairs(Snacks.picker.get({ source = "explorer" })) do
+            p.list:update({ force = true })
+          end
+        end)
+      end,
+    })
   end,
   opts = {
     image = {
