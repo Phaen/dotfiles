@@ -78,6 +78,30 @@ When deleting files managed by chezmoi (any file in the dotfiles structure below
 - Use `chezmoi remove <file>` instead of `rm` to keep the source state in sync.
 - Check if a file is managed with `chezmoi managed --include=files | grep -q <path>`.
 
+## Code Delegation — Architect/Builder Protocol
+
+Expensive-model (Fable) output tokens are the scarce resource; input tokens and cheap-model output are not. Fable architects and verifies; cheaper models write the code.
+
+**Trigger — the compression test.** Before writing any code, estimate whether a spec (decisions + signatures + edge cases) would be much smaller than the finished code. High ratio — boilerplate, tests, CRUD, migrations, markup, repetitive multi-file edits — means delegate. Ratio near 1 — novel algorithms, subtle logic — means no savings, so write it yourself. Also skip delegation when the edit is so small that dispatch overhead dominates (under ~20 lines), when diagnosis is the actual work, when the code is security-critical enough that review costs as much as authorship, or when the design is still churning with the user.
+
+1. **Architect.** Close every decision that has more than one plausible answer: files, signatures with types, data flow, edge cases, error behavior, what not to touch. Anything left open comes back as a wrong guess or a round-trip.
+2. **Spec.** Minified pseudocode, zero prose: `CREATE|MODIFY <path>` per unit; signatures; compact control flow; edge cases as one-liners; pattern refs instead of restated conventions ("mirror `app/.../UserController.php`" transfers house style for a few tokens); end with a `VERIFY:` line listing the risk points to check after the build — written now, while the risks are fresh.
+3. **Dispatch.** Agent tool, one builder per independent unit, partitioned by file — parallel builders must never share a file. Model: Sonnet by default, Opus when the unit needs local judgment, Haiku for purely mechanical sweeps (renames, translation fills).
+4. **Builder contract** (goes in the prompt): read the pattern-ref files first; follow the spec exactly; decide nothing architectural — if the spec is ambiguous, return `QUESTION: …` instead of guessing; report only changed paths, deviations, and questions — never echo code back.
+5. **Q&A.** Answer a `QUESTION:` via SendMessage to the same agent — its context is warm. Never re-dispatch a fresh agent just to answer one.
+6. **Verify cheap-first.** Machine checks first (tests, static analysis), then read the diff only at the spec's `VERIFY:` points. Boring code that passes checks does not get re-read line by line.
+7. **Repair.** Small miss: fix it with a targeted edit yourself. Structural miss: correct the spec and re-dispatch the same agent. Two failed rounds: write that unit yourself (consistent with the problem-solving rule above).
+
+Example spec:
+
+```
+MODIFY app/Models/Invoice.php: + scopeOverdue($q) => due_at < now(), status != paid
+CREATE app/Http/Controllers/InvoiceReminderController.php:
+  __invoke(Request): authorize 'remind' else 403; Invoice::overdue()->chunkById(500, dispatch SendReminder each); return 202 {queued: n}
+CREATE tests/Feature/InvoiceReminderTest.php: happy, 403, zero-overdue => {queued: 0}; mirror tests/Feature/InvoiceArchiveTest.php
+VERIFY: chunkById not get() (memory); count accurate across chunks; 403 before any dispatch
+```
+
 ## Shell environment
 
 These commands and utilities are always available in this environment.
