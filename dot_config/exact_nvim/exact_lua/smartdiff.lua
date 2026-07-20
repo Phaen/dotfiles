@@ -450,12 +450,19 @@ end
 function M.setup()
   vim.opt.diffexpr = "v:lua.require'smartdiff'.diffexpr()"
   vim.api.nvim_create_user_command("SmartDiffStatus", function()
+    local tiers = {
+      [1] = "tier 1 (difftastic)",
+      [2] = "tier 2 (xdiff + token pairing)",
+      [3] = "tier 3 (raw xdiff passthrough)",
+    }
+    local difft = not difft_available() and "not installed (tier 1 dormant)"
+        or vim.g.smartdiff_difft == false and "installed, disabled"
+        or "installed, enabled"
     local lines = {
-      "enabled:      " .. tostring(vim.g.smartdiff_enabled ~= false),
-      "difft binary: " .. (difft_available() and "found" or "not found (tier 1 dormant)"),
-      "difft tier:   " .. tostring(vim.g.smartdiff_difft ~= false),
-      "last tier:    " .. tostring(M.state.last_tier),
-      "last error:   " .. tostring(M.state.last_error),
+      "smartdiff:   " .. (vim.g.smartdiff_enabled ~= false and "enabled" or "disabled (passthrough)"),
+      "difftastic:  " .. difft,
+      "last diff:   " .. (tiers[M.state.last_tier] or "none run yet"),
+      "last error:  " .. (M.state.last_error or "none"),
     }
     vim.notify(table.concat(lines, "\n"), vim.log.levels.INFO, { title = "smartdiff" })
   end, {})
