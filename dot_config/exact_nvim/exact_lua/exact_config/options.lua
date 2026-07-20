@@ -15,3 +15,6 @@ vim.env.PHPSTAN_MEMORY_LIMIT = "1G"
 vim.g.root_spec = { "cwd" }
 
 require("config.neovide")
+
+-- Similarity-aware line pairing for diff mode; tiered engine, see lua/smartdiff.lua.
+require("smartdiff").setup()
