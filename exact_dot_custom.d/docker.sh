@@ -39,7 +39,7 @@ function docker_container_fuzzy() {
 function docker_container_project() {
   local dir container
   dir=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
-  container=$(docker ps -q | xargs docker inspect | jq -r '.[] | select(.Mounts[] | .Source == "'"$dir"'") | .Name')
+  container=$(docker ps -q | xargs docker inspect | jq -r '.[] | select(.Mounts[] | (.Source | ltrimstr("/host_mnt")) == "'"$dir"'") | .Name')
 
   if [ -z "$container" ]; then
     echo "Error: No container found for $dir" >&2
