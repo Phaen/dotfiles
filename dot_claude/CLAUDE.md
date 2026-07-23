@@ -67,6 +67,7 @@ Whenever you add to a UI and translation helpers are already present in the proj
 
 ### Git
 
+- Before committing, always make sure that you run the relevant steps to verify code integrity (e.g. formatting, linting, static analysis, etc.).
 - Before amending a commit, check if it's already pushed with `git status` (look for "Your branch is ahead of").
 - If the commit is already pushed, create a new commit instead of amending.
 - When a user mentions CI, this automatically implies that the commit was already pushed.
