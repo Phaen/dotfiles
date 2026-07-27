@@ -26,18 +26,12 @@ map("n", "<leader>bd", delete_buffer_to_dashboard, { desc = "Delete Buffer (or D
 -- Resize the current window to fit its widest line, then hand the freed (or
 -- borrowed) columns to the windows sharing its horizontal band, split by their
 -- current width ratios.
--- Widest line, but a handful of freak-long lines (e.g. one enormous migration
--- name among short filenames) are dropped so they don't blow up the whole
--- window. With widths sorted ascending, ladder down from the longest line: each
--- rung within FREAK_GAP of the one above is part of the same smooth run, so
--- keep descending until a rung drops by more than FREAK_GAP -- that gap is the
--- top of the real content and everything above it is a candidate freak. Freaks
--- are only dropped while they stay a minority: the ladder never reaches past
--- the top FREAK_SHARE of lines, so a gap that would discard more than that is
--- ignored (the long lines are then a real trend, not outliers). No qualifying
--- gap in the top slice means the spread is smooth, so the longest line is used.
-local FREAK_GAP = 0.10   -- a drop of >10% between neighbours ends the ladder
-local FREAK_SHARE = 0.10 -- at most the top 10% of lines may be dropped
+-- Widest line, minus freak-long outliers (one enormous migration name among
+-- short files) that would blow the window open. Sort widths, ladder down from
+-- the longest, cut at the first jump over FREAK_GAP: the width below wins.
+-- Columns not ratio, since a freak costs exactly the columns it adds.
+local FREAK_GAP = 10     -- jump (columns) between neighbours that ends the ladder
+local FREAK_SHARE = 0.10 -- only the top 10% of lines are eligible (else: real trend)
 
 local function content_width(buf)
   local widths, max_w = {}, 0
@@ -57,7 +51,7 @@ local function content_width(buf)
   table.sort(widths)
   local lo = math.max(2, n - math.max(1, math.floor(n * FREAK_SHARE)) + 1)
   for i = n, lo, -1 do
-    if widths[i - 1] < widths[i] * (1 - FREAK_GAP) then
+    if widths[i] - widths[i - 1] > FREAK_GAP then
       return widths[i - 1]
     end
   end
