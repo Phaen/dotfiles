@@ -28,6 +28,27 @@ return {
     { "<leader>gdh", "<cmd>DiffviewFileHistory %<cr>", desc = "Diffview: file history" },
     { "<leader>gdH", "<cmd>DiffviewFileHistory<cr>", desc = "Diffview: repo history" },
   },
+  -- diffview registers its own SessionLoadPost handler in plugin/diffview.lua,
+  -- which never runs at session-load time under cmd/keys lazy loading. Without
+  -- it, the `edit diffview://...` lines :mksession wrote come back as empty,
+  -- unflagged buffers, and the next DiffviewOpen on the same rev dies with
+  -- "Failed to create diff buffer" on the name collision. init runs eagerly,
+  -- so the hook is armed before persistence.nvim sources the session; the
+  -- require inside only pulls diffview in when a session is actually restored.
+  init = function()
+    vim.api.nvim_create_autocmd("SessionLoadPost", {
+      group = vim.api.nvim_create_augroup("diffview_session_lazy", { clear = true }),
+      callback = function()
+        vim.schedule(function()
+          local session = require("diffview.session")
+          session.cleanup()
+          -- Deferred so the TabClosed/WinClosed autocmds queued by cleanup
+          -- land before restore opens a view.
+          vim.schedule(session.restore)
+        end)
+      end,
+    })
+  end,
   config = function()
     require("diffview").setup({
       -- ON so old-side deletions render through DiffviewDiffAddAsDelete instead
@@ -53,6 +74,10 @@ return {
       view = {
         -- Side-by-side for normal diffs.
         default = { layout = "diff2_horizontal" },
+        -- Added/untracked/deleted files have nothing on one side, so instead
+        -- of a half-empty split, render them as a single full-width window
+        -- (diff1_raw). Added files stay editable when the b-side is LOCAL.
+        one_sided_layout = "raw",
         -- 3-way merge: local | result | remote, with the base available.
         merge_tool = {
           layout = "diff3_horizontal",
@@ -102,5 +127,111 @@ return {
     -- Runs after diffview's own ColorScheme handler (registered during setup
     -- above), so our overrides win over its re-derived defaults.
     vim.api.nvim_create_autocmd("ColorScheme", { callback = set_diff_hl })
+
+    -- A jump out of a diff window (gd, gf, a picker, ...) swaps that window's
+    -- buffer and leaves the opposite side on the previous file, so the two
+    -- panes stop describing the same thing. Rebind the whole layout to the
+    -- entry the jump landed in, carrying the cursor over.
+    local function sync_layout_to_buf(bufnr, winid)
+      local lib = require("diffview.lib")
+      local DiffView = require("diffview.scene.views.diff.diff_view").DiffView
+      local view = lib.get_current_view()
+
+      if not (view and view.cur_layout and view:instanceof(DiffView)) then
+        return
+      end
+
+      -- Only jumps made from inside the diff layout count; the file panel and
+      -- any window outside the view are none of our business.
+      local win_obj
+      for _, win in ipairs(view.cur_layout.windows) do
+        if win.id == winid then
+          win_obj = win
+          break
+        end
+      end
+      if not win_obj then
+        return
+      end
+
+      -- buftype filters out diffview://, which is how every non-local side of
+      -- an entry is rendered — those are never a stray jump.
+      local name = vim.api.nvim_buf_get_name(bufnr)
+      if name == "" or vim.bo[bufnr].buftype ~= "" then
+        return
+      end
+
+      -- Diffview swapping in a buffer it owns has already updated the window's
+      -- attached file, so the two agree. A stray jump leaves them disagreeing.
+      if win_obj.file and win_obj.file.bufnr == bufnr then
+        return
+      end
+
+      local target = vim.fs.normalize(name)
+      local entry
+      for _, file in view.files:iter() do
+        if vim.fs.normalize(file.absolute_path) == target then
+          entry = file
+          break
+        end
+      end
+
+      -- Until the layout is rebound, the panes hold unrelated files and vim
+      -- would redraw a whole-file diff between them. Drop diff mode now, while
+      -- still inside the autocmd, so that frame never renders. Reopening the
+      -- entry restores it: every File carries `diff = true` in its winopts.
+      local diffed = {}
+      for _, win in ipairs(view.cur_layout.windows) do
+        if win.id and vim.api.nvim_win_is_valid(win.id) and vim.wo[win.id].diff then
+          vim.wo[win.id].diff = false
+          diffed[#diffed + 1] = win.id
+        end
+      end
+
+      local function restore_diff()
+        for _, id in ipairs(diffed) do
+          if vim.api.nvim_win_is_valid(id) then
+            vim.wo[id].diff = true
+          end
+        end
+      end
+
+      -- Deferred: diffview's own entry switches fire BufWinEnter too, before
+      -- cur_entry catches up. Re-reading cur_entry a tick later makes those a
+      -- no-op and doubles as the re-entrancy guard for our own set_file.
+      vim.schedule(function()
+        if not lib.has_view(view) then
+          return
+        end
+
+        if view.cur_entry == entry then
+          restore_diff()
+          return
+        end
+
+        if not entry then
+          vim.notify(
+            vim.fn.fnamemodify(name, ":.") .. " is not part of this diff",
+            vim.log.levels.WARN
+          )
+          return
+        end
+
+        -- cursor_map is consumed by the file_open_new listener, which lands
+        -- the main window here instead of on the first hunk.
+        if vim.api.nvim_win_is_valid(winid) then
+          view.cursor_map[entry.path] = vim.api.nvim_win_call(winid, vim.fn.winsaveview)
+        end
+
+        view:set_file(entry, true)
+      end)
+    end
+
+    vim.api.nvim_create_autocmd("BufWinEnter", {
+      group = vim.api.nvim_create_augroup("diffview_follow_jump", { clear = true }),
+      callback = function(args)
+        sync_layout_to_buf(args.buf, vim.api.nvim_get_current_win())
+      end,
+    })
   end,
 }
