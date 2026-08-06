@@ -15,10 +15,7 @@ return {
         -- it; `git remote set-head origin -a` populates it if missing.
         local ref = vim.fn.systemlist("git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null")[1]
         if not ref or ref == "" then
-          vim.notify(
-            "origin/HEAD not set. Run: git remote set-head origin -a",
-            vim.log.levels.WARN
-          )
+          vim.notify("origin/HEAD not set. Run: git remote set-head origin -a", vim.log.levels.WARN)
           return
         end
         vim.cmd("DiffviewOpen " .. ref .. "...HEAD")
@@ -50,6 +47,83 @@ return {
     })
   end,
   config = function()
+    -- Fuzzy-jump between the entries of the current diff view. The global
+    -- pickers are no help here: <leader><space> spans the whole project and
+    -- git-status pickers are empty when diffing a clean worktree against
+    -- another rev. This one lists exactly view.files, previews each entry as
+    -- its own git diff (per-entry revs, so staged/range entries are correct),
+    -- and lands on the entry through set_file so both panes stay bound.
+    local function pick_view_file()
+      local lib = require("diffview.lib")
+      local DiffView = require("diffview.scene.views.diff.diff_view").DiffView
+      local RevType = require("diffview.vcs.rev").RevType
+      local view = lib.get_current_view()
+
+      if not (view and view:instanceof(DiffView)) then
+        return
+      end
+
+      local items = {}
+      for _, file in view.files:iter() do
+        items[#items + 1] = {
+          text = file.path,
+          file = file.absolute_path,
+          cwd = file.adapter.ctx.toplevel,
+          -- Porcelain-style two columns: staged entries carry their status in
+          -- the first column, so snacks' git_status formatter styles them as
+          -- staged.
+          status = file.kind == "staged" and (file.status .. " ") or (" " .. file.status),
+          rename = file.oldpath,
+          entry = file,
+        }
+      end
+
+      Snacks.picker.pick({
+        title = "Diff files (" .. (view.rev_arg or view.adapter:rev_to_pretty_string(view.left, view.right)) .. ")",
+        items = items,
+        format = "git_status",
+        -- idx instead of the default #text tiebreak, so an empty query shows
+        -- the file panel's own ordering.
+        sort = { fields = { "score:desc", "idx" } },
+        preview = function(ctx)
+          local entry = ctx.item.entry
+          -- Untracked files don't exist for git diff; show the file itself.
+          if entry.status == "?" then
+            return Snacks.picker.preview.file(ctx)
+          end
+          local a, b = entry.revs.a, entry.revs.b
+          -- -w mirrors the iwhiteall diffopt above, so the preview shows the
+          -- same hunks as the view.
+          local cmd = { "git", "diff", "-w" }
+          if entry.kind == "staged" or (b and b.type == RevType.STAGE) then
+            cmd[#cmd + 1] = "--cached"
+            if a and a.commit then
+              cmd[#cmd + 1] = a.commit
+            end
+          else
+            if a and a.commit then
+              cmd[#cmd + 1] = a.commit
+            end
+            if b and b.commit then
+              cmd[#cmd + 1] = b.commit
+            end
+          end
+          cmd[#cmd + 1] = "--"
+          if entry.oldpath then
+            cmd[#cmd + 1] = entry.oldpath
+          end
+          cmd[#cmd + 1] = entry.path
+          return Snacks.picker.preview.cmd(cmd, ctx, { ft = "diff" })
+        end,
+        confirm = function(picker, item)
+          picker:close()
+          if lib.has_view(view) then
+            view:set_file(item.entry, true)
+          end
+        end,
+      })
+    end
+
     require("diffview").setup({
       -- ON so old-side deletions render through DiffviewDiffAddAsDelete instead
       -- of raw DiffAdd (green). Native diff mode has no old/new concept — a
@@ -87,12 +161,18 @@ return {
       },
       file_panel = {
         listing_style = "tree", -- directory tree, not a flat list
-        win_config = { position = "left", width = 40 },
+        win_config = { position = "left", width = 80 },
       },
       keymaps = {
         view = {
           { "n", "]c", require("diffview.actions").select_next_entry, { desc = "Next file" } },
           { "n", "[c", require("diffview.actions").select_prev_entry, { desc = "Prev file" } },
+          -- Shadows the global Seeker files mapping while inside the view;
+          -- buffer-local, so it reverts when the view closes.
+          { "n", "<leader><space>", pick_view_file, { desc = "Pick diff file" } },
+        },
+        file_panel = {
+          { "n", "<leader><space>", pick_view_file, { desc = "Pick diff file" } },
         },
       },
     })
@@ -103,8 +183,10 @@ return {
     local function set_diff_hl()
       local c = vim.o.background == "light"
           and { filler = "#dde0e8", add = "#d0e2d1", del = "#eac8d3", chg = "#ecd9bd", chgtext = "#e0c599" }
-          or { filler = "#444444", add = "#364143", del = "#443244", chg = "#4a3f2a", chgtext = "#65552f" }
-      local hl = function(g, o) vim.api.nvim_set_hl(0, g, o) end
+        or { filler = "#444444", add = "#364143", del = "#443244", chg = "#4a3f2a", chgtext = "#65552f" }
+      local hl = function(g, o)
+        vim.api.nvim_set_hl(0, g, o)
+      end
 
       -- Deleted-line filler: fg=bg collapses the slashes into a solid block.
       hl("DiffDelete", { fg = c.filler, bg = c.filler })
@@ -210,10 +292,7 @@ return {
         end
 
         if not entry then
-          vim.notify(
-            vim.fn.fnamemodify(name, ":.") .. " is not part of this diff",
-            vim.log.levels.WARN
-          )
+          vim.notify(vim.fn.fnamemodify(name, ":.") .. " is not part of this diff", vim.log.levels.WARN)
           return
         end
 
