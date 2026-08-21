@@ -161,7 +161,7 @@ return {
       },
       file_panel = {
         listing_style = "tree", -- directory tree, not a flat list
-        win_config = { position = "left", width = 80 },
+        win_config = { position = "left", width = 60 },
       },
       keymaps = {
         view = {
