@@ -19,13 +19,14 @@ refreshPeriod = "168h"
 clone.args = ["--depth=1"]
 pull.args = ["--ff-only"]
 
-# Pinned: ~/.p10k.zsh is wizard-generated against this tag, so bumping it means
-# re-running `p10k configure`. Tag clones are detached, hence no pull args.
+# Tracks master: v1.20.0 is the newest tag but master carries the active work.
+# Config template changes upstream mean ~/.p10k.zsh needs `p10k configure` again.
 [".oh-my-zsh/custom/themes/powerlevel10k"]
 type = "git-repo"
 url = "https://github.com/romkatv/powerlevel10k.git"
-refreshPeriod = "8760h"
-clone.args = ["--branch=v1.20.0", "--depth=1"]
+refreshPeriod = "168h"
+clone.args = ["--depth=1"]
+pull.args = ["--ff-only"]
 
 [".config/tmux/tmux.conf"]
 type = "file"
