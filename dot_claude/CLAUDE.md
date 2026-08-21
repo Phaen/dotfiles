@@ -76,8 +76,10 @@ Whenever you add to a UI and translation helpers are already present in the proj
 
 When deleting files managed by chezmoi (any file in the dotfiles structure below):
 
-- Use `chezmoi remove <file>` instead of `rm` to keep the source state in sync.
+- Use `chezmoi destroy <file>` instead of `rm` to drop it from source, target and state. `chezmoi remove` is deprecated and silently does nothing.
+- Use `chezmoi forget <file>` to stop tracking a file while keeping it on disk.
 - Check if a file is managed with `chezmoi managed --include=files | grep -q <path>`.
+- Archive externals (`type = "archive"`) enumerate every file as a managed entry, and `re-add` resolves those source paths against the source root, writing bogus files like `dot_github` into the repo. `type = "git-repo"` externals stay opaque.
 
 ## Code Delegation — Architect/Builder Protocol
 
