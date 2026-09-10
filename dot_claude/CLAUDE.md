@@ -37,6 +37,11 @@
 
 - NEVER write imperatives in code comments. This is not StackOverflow where you're providing context alongside the code. The context belongs in the session, while the code and its comments should remain self-contained.
 
+### File references
+
+- Point at a place in a file with a markdown link: `[Something.php:238](vscode://file/absolute/path/Something.php:238:1)`.
+- The `vscode://` scheme is a transport, not the editor. NeoHubR intercepts it and opens Neovim.
+
 ### Docker
 
 - If there is a dockerfile present, use docker to run commands on the codebase.
