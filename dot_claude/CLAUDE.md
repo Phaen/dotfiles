@@ -28,6 +28,7 @@
 ### Tests
 
 - Never mention passing tests unprompted. A complete implementation already assumes that all related tests passed. Things like "all tests green" is just noise.
+- Infection is installed globally (`infection`) and is meant to be used when writing tests. Where a project is set up for it, the config and an `./infect` wrapper sit in its root, kept out of the repo through `.git/info/exclude` — never commit them, reference them from project files, or mention them to colleagues. Set the same thing up on request for a project that lacks it.
 
 ### SQL
 
