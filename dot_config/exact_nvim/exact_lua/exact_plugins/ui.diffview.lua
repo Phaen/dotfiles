@@ -25,26 +25,15 @@ return {
     { "<leader>gdh", "<cmd>DiffviewFileHistory %<cr>", desc = "Diffview: file history" },
     { "<leader>gdH", "<cmd>DiffviewFileHistory<cr>", desc = "Diffview: repo history" },
   },
-  -- diffview registers its own SessionLoadPost handler in plugin/diffview.lua,
-  -- which never runs at session-load time under cmd/keys lazy loading. Without
-  -- it, the `edit diffview://...` lines :mksession wrote come back as empty,
-  -- unflagged buffers, and the next DiffviewOpen on the same rev dies with
-  -- "Failed to create diff buffer" on the name collision. init runs eagerly,
-  -- so the hook is armed before persistence.nvim sources the session; the
-  -- require inside only pulls diffview in when a session is actually restored.
+  -- diffview arms its session hooks from plugin/diffview.lua, which never
+  -- sources at startup under cmd/keys lazy loading. Without them, the `edit
+  -- diffview://...` lines :mksession wrote come back as empty, unflagged
+  -- buffers, and the next DiffviewOpen on the same rev dies with "Failed to
+  -- create diff buffer" on the name collision. init runs eagerly, so the
+  -- hooks are armed before persistence.nvim sources the session; session.lua
+  -- requires nothing at load time.
   init = function()
-    vim.api.nvim_create_autocmd("SessionLoadPost", {
-      group = vim.api.nvim_create_augroup("diffview_session_lazy", { clear = true }),
-      callback = function()
-        vim.schedule(function()
-          local session = require("diffview.session")
-          session.cleanup()
-          -- Deferred so the TabClosed/WinClosed autocmds queued by cleanup
-          -- land before restore opens a view.
-          vim.schedule(session.restore)
-        end)
-      end,
-    })
+    require("diffview.session").setup()
   end,
   config = function()
     -- Fuzzy-jump between the entries of the current diff view. The global
@@ -79,7 +68,7 @@ return {
       end
 
       Snacks.picker.pick({
-        title = "Diff files (" .. (view.rev_arg or view.adapter:rev_to_pretty_string(view.left, view.right)) .. ")",
+        title = "Diff files (" .. (view.panel.rev_pretty_name or "") .. ")",
         items = items,
         format = "git_status",
         -- idx instead of the default #text tiebreak, so an empty query shows
@@ -223,6 +212,14 @@ return {
         return
       end
 
+      -- Mid-swap, diffview owns the windows: `win.file` can already point at
+      -- the incoming entry while the window still holds the outgoing buffer,
+      -- which reads exactly like a stray jump. Leave its own work alone.
+      local in_flight = view:set_file_in_flight()
+      if in_flight and not in_flight:is_done() then
+        return
+      end
+
       -- Only jumps made from inside the diff layout count; the file panel and
       -- any window outside the view are none of our business.
       local win_obj
@@ -296,10 +293,19 @@ return {
           return
         end
 
-        -- cursor_map is consumed by the file_open_new listener, which lands
-        -- the main window here instead of on the first hunk.
+        -- cursor_map is consumed by restore_main_view when the entry opens,
+        -- landing the main window here instead of on the first hunk. Entries
+        -- are `StandardView.CarryState`: bufnr/bufname let it diff the buffer
+        -- the state was captured in against the arriving one, so the cursor
+        -- follows its line of code instead of a raw line number.
         if vim.api.nvim_win_is_valid(winid) then
-          view.cursor_map[entry.path] = vim.api.nvim_win_call(winid, vim.fn.winsaveview)
+          local jump_buf = vim.api.nvim_win_get_buf(winid)
+
+          view.cursor_map[entry.path] = {
+            winview = vim.api.nvim_win_call(winid, vim.fn.winsaveview),
+            bufnr = jump_buf,
+            bufname = vim.api.nvim_buf_get_name(jump_buf),
+          }
         end
 
         view:set_file(entry, true)
