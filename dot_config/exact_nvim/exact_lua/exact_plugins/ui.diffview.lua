@@ -1,3 +1,15 @@
+-- Resolve the remote's default branch (acceptance, main, master, ...) rather
+-- than hardcoding one. origin/HEAD is a symbolic ref pointing at it; `git
+-- remote set-head origin -a` populates it if missing.
+local function default_branch()
+  local ref = vim.fn.systemlist("git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null")[1]
+  if not ref or ref == "" then
+    vim.notify("origin/HEAD not set. Run: git remote set-head origin -a", vim.log.levels.WARN)
+    return nil
+  end
+  return ref
+end
+
 return {
   -- Maintained fork of the abandoned sindrets/diffview.nvim (original last
   -- pushed Aug 2024). This fork is ~133 commits ahead with the backlog of bug
@@ -10,18 +22,14 @@ return {
     {
       "<leader>gdm",
       function()
-        -- Resolve the remote's default branch (acceptance, main, master, ...)
-        -- rather than hardcoding one. origin/HEAD is a symbolic ref pointing at
-        -- it; `git remote set-head origin -a` populates it if missing.
-        local ref = vim.fn.systemlist("git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null")[1]
-        if not ref or ref == "" then
-          vim.notify("origin/HEAD not set. Run: git remote set-head origin -a", vim.log.levels.WARN)
-          return
+        local ref = default_branch()
+        if ref then
+          vim.cmd("DiffviewOpen " .. ref .. "...HEAD")
         end
-        vim.cmd("DiffviewOpen " .. ref .. "...HEAD")
       end,
       desc = "Diffview: what branch introduced (vs default)",
     },
+    { "<leader>gdp", "<cmd>DiffviewPr<cr>", desc = "Diffview: what branch introduced (vs PR base)" },
     { "<leader>gdh", "<cmd>DiffviewFileHistory %<cr>", desc = "Diffview: file history" },
     { "<leader>gdH", "<cmd>DiffviewFileHistory<cr>", desc = "Diffview: repo history" },
   },
@@ -34,6 +42,37 @@ return {
   -- requires nothing at load time.
   init = function()
     require("diffview.session").setup()
+
+    -- The branch a PR merges into is often not the remote default: stacked
+    -- PRs target their parent, hotfixes target a release branch. git only
+    -- knows the upstream it pushes to, so the base comes from gh. Defined in
+    -- init rather than config because a command that only exists after the
+    -- plugin loads can never be the thing that loads it.
+    vim.api.nvim_create_user_command("DiffviewPr", function(opts)
+      -- Async: `gh pr view` is a network round trip, and a blocking one
+      -- freezes the editor for the length of it.
+      vim.system(
+        { "gh", "pr", "view", "--json", "baseRefName", "--jq", ".baseRefName" },
+        { text = true },
+        vim.schedule_wrap(function(res)
+          local base = vim.trim(res.stdout or "")
+
+          if res.code ~= 0 or base == "" then
+            vim.notify("No PR found for this branch; diffing against the default branch", vim.log.levels.WARN)
+            base = default_branch()
+            if not base then
+              return
+            end
+          else
+            -- Compare against the remote's copy of the base: the local branch
+            -- is stale or absent, and the merge base is what the PR shows.
+            base = "origin/" .. base
+          end
+
+          vim.cmd("DiffviewOpen " .. base .. "...HEAD " .. opts.args)
+        end)
+      )
+    end, { nargs = "*", complete = "file", desc = "Diffview against the PR's base branch" })
   end,
   config = function()
     -- Fuzzy-jump between the entries of the current diff view. The global
