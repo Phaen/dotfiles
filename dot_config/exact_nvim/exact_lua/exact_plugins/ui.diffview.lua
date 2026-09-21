@@ -95,7 +95,9 @@ return {
       for _, file in view.files:iter() do
         items[#items + 1] = {
           text = file.path,
-          file = file.absolute_path,
+          -- Repo-relative + cwd: snacks joins the two, so an absolute file
+          -- here renders as the full path instead of the short one.
+          file = file.path,
           cwd = file.adapter.ctx.toplevel,
           -- Porcelain-style two columns: staged entries carry their status in
           -- the first column, so snacks' git_status formatter styles them as
@@ -108,6 +110,9 @@ return {
 
       Snacks.picker.pick({
         title = "Diff files (" .. (view.panel.rev_pretty_name or "") .. ")",
+        -- The picker's own cwd is what paths get shortened against; nvim's
+        -- cwd isn't necessarily the repo the view is diffing.
+        cwd = view.adapter.ctx.toplevel,
         items = items,
         format = "git_status",
         -- idx instead of the default #text tiebreak, so an empty query shows
