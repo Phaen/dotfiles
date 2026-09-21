@@ -19,3 +19,17 @@ alias venv="source venv/bin/activate"
 
 # Bypass xterm-kitty during sudo, when unavailable on sudo'd user
 alias sudou='sudo TERM=xterm-256color -iu'
+
+# Run Claude in the capability rig, optionally with an opening prompt
+function ai() {
+  local rig="$proton/Projects/ai-rig"
+  if [ ! -d "$rig" ]; then
+    echo "ai: rig not found at $rig" >&2
+    return 1
+  fi
+  if [ $# -gt 0 ]; then
+    (cd "$rig" && claude --model sonnet "$*")
+  else
+    (cd "$rig" && claude --model sonnet)
+  fi
+}
