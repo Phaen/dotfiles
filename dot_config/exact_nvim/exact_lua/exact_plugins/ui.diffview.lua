@@ -196,10 +196,23 @@ return {
         listing_style = "tree", -- directory tree, not a flat list
         win_config = { position = "left", width = 60 },
       },
+      hooks = {
+        -- Diff folds exist to skip over unchanged code that would otherwise
+        -- push the hunks off screen. A file that fits in the window as a whole
+        -- has nothing to skip, so the folds there only hide context. Fires per
+        -- window, so each side is judged on its own buffer; the two sides of a
+        -- diff rarely differ enough in length for that to disagree.
+        diff_buf_win_enter = function(bufnr, winid)
+          if not vim.wo[winid].diff then
+            return
+          end
+          if vim.api.nvim_buf_line_count(bufnr) <= vim.api.nvim_win_get_height(winid) then
+            vim.wo[winid].foldlevel = 99
+          end
+        end,
+      },
       keymaps = {
         view = {
-          { "n", "]c", require("diffview.actions").select_next_entry, { desc = "Next file" } },
-          { "n", "[c", require("diffview.actions").select_prev_entry, { desc = "Prev file" } },
           -- Shadows the global Seeker files mapping while inside the view;
           -- buffer-local, so it reverts when the view closes.
           { "n", "<leader><space>", pick_view_file, { desc = "Pick diff file" } },
