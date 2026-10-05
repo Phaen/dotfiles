@@ -199,16 +199,38 @@ return {
       hooks = {
         -- Diff folds exist to skip over unchanged code that would otherwise
         -- push the hunks off screen. A file that fits in the window as a whole
-        -- has nothing to skip, so the folds there only hide context. Fires per
-        -- window, so each side is judged on its own buffer; the two sides of a
-        -- diff rarely differ enough in length for that to disagree.
-        diff_buf_win_enter = function(bufnr, winid)
-          if not vim.wo[winid].diff then
-            return
-          end
-          if vim.api.nvim_buf_line_count(bufnr) <= vim.api.nvim_win_get_height(winid) then
-            vim.wo[winid].foldlevel = 99
-          end
+        -- has nothing to skip, so the folds there only hide context. Otherwise
+        -- the context-sized diff folds give way to structural ones, see
+        -- lua/difffold.lua. Both sides are judged together: folds that differ
+        -- between the panes misalign them.
+        diff_buf_win_enter = function()
+          -- Deferred: the hook fires per window, before the opposite side is
+          -- in diff mode.
+          vim.schedule(function()
+            local wins = vim.tbl_filter(function(w)
+              return vim.wo[w].diff
+            end, vim.api.nvim_tabpage_list_wins(0))
+            -- Three-way merges keep the stock folds.
+            if #wins ~= 2 then
+              return
+            end
+
+            local fits = true
+            for _, w in ipairs(wins) do
+              if vim.api.nvim_buf_line_count(vim.api.nvim_win_get_buf(w)) > vim.api.nvim_win_get_height(w) then
+                fits = false
+              end
+            end
+            if fits then
+              for _, w in ipairs(wins) do
+                vim.wo[w].foldlevel = 99
+              end
+              return
+            end
+
+            -- Tabpage window order is left to right, so the new side is read.
+            require("difffold").apply_pair(wins[2], wins[1])
+          end)
         end,
       },
       keymaps = {
