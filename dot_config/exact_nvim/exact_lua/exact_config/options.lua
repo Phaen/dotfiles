@@ -18,3 +18,6 @@ require("config.neovide")
 
 -- Similarity-aware line pairing for diff mode; tiered engine, see lua/smartdiff.lua.
 require("smartdiff").setup()
+
+-- Folds a function together with the docblock above it, see lua/docfold.lua.
+require("docfold").setup()
