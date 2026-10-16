@@ -10,6 +10,76 @@ local function default_branch()
   return ref
 end
 
+-- git records no branch parentage: a branch is a pointer, and "branched off
+-- from" survives only as topology. The base is guessed as the ref with the
+-- fewest commits in ref..HEAD, i.e. the nearest fork point. Refs containing
+-- HEAD (zero commits) are descendants or twins, never bases. A branch cut
+-- from this one and advanced since is topologically a parent too; the HEAD
+-- reflog's record of its creation is what tells those apart, locally only.
+local function guess_base()
+  -- argv form: the shell would glob the %( in for-each-ref's format.
+  local function git(...)
+    local res = vim.system({ "git", ... }, { text = true }):wait()
+    return res.code == 0 and vim.split(vim.trim(res.stdout), "\n", { trimempty = true }) or {}
+  end
+
+  local current = git("branch", "--show-current")[1] or ""
+  local upstream = git("rev-parse", "--abbrev-ref", "@{upstream}")[1] or ""
+  -- Silent lookup: without origin/HEAD there is no tie-break, nothing to fix.
+  local default = git("symbolic-ref", "--short", "refs/remotes/origin/HEAD")[1]
+
+  local children = {}
+  for _, line in ipairs(git("reflog", "show", "--format=%gs", "HEAD")) do
+    local from, to = line:match("^checkout: moving from (%S+) to (%S+)$")
+    -- The oldest switch onto a branch is its creation, so the last match
+    -- for each name wins.
+    if from then
+      children[to] = from == current
+    end
+  end
+
+  local refs = git(
+    "for-each-ref",
+    "--format=%(refname:short)",
+    "--exclude=refs/remotes/origin/HEAD",
+    "refs/heads",
+    "refs/remotes/origin"
+  )
+  local best, best_count = nil, math.huge
+  local tied = {}
+  for _, ref in ipairs(refs) do
+    if ref ~= current and ref ~= upstream and ref ~= "origin/" .. current and not children[ref] then
+      local count = tonumber(git("rev-list", "--count", ref .. "..HEAD")[1]) or 0
+      if count > 0 and count < best_count then
+        best, best_count, tied = ref, count, { ref }
+      elseif count == best_count then
+        tied[#tied + 1] = ref
+        if ref == default then
+          best = ref
+        end
+      end
+    end
+  end
+
+  if not best then
+    vim.notify("No branch forks off this one", vim.log.levels.WARN)
+    return nil
+  end
+
+  -- Tied refs sharing a merge-base yield the same diff and differ only in
+  -- name; distinct merge-bases at equal distance are a genuine ambiguity.
+  local bases = {}
+  for _, ref in ipairs(tied) do
+    bases[git("merge-base", ref, "HEAD")[1] or ref] = true
+  end
+  if vim.tbl_count(bases) > 1 then
+    vim.notify("Ambiguous base, candidates: " .. table.concat(tied, ", "), vim.log.levels.WARN)
+  end
+
+  vim.notify(("Base: %s (%d commits since fork)"):format(best, best_count))
+  return best
+end
+
 return {
   -- Maintained fork of the abandoned sindrets/diffview.nvim (original last
   -- pushed Aug 2024). This fork is ~133 commits ahead with the backlog of bug
@@ -30,6 +100,16 @@ return {
       desc = "Diffview: what branch introduced (vs default)",
     },
     { "<leader>gdp", "<cmd>DiffviewPr<cr>", desc = "Diffview: what branch introduced (vs PR base)" },
+    {
+      "<leader>gdb",
+      function()
+        local ref = guess_base()
+        if ref then
+          vim.cmd("DiffviewOpen " .. ref .. "...HEAD")
+        end
+      end,
+      desc = "Diffview: what branch introduced (vs guessed base)",
+    },
     { "<leader>gdh", "<cmd>DiffviewFileHistory %<cr>", desc = "Diffview: file history" },
     { "<leader>gdH", "<cmd>DiffviewFileHistory<cr>", desc = "Diffview: repo history" },
   },
